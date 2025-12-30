@@ -7,14 +7,23 @@ import { OrderBasics } from "./OrderBasics";
 import { ItemDetails } from "./ItemDetails";
 import { OptionalDetails } from "./OptionalDetails";
 import { UserAuth } from "./UserAuth";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { useUserStore } from "../../store/userStore";
 
 export function CustomOrderForm() {
+  const { user, isVerified, setUser, setVerified } = useUserStore();
   const [step, setStep] = useState<1 | 2>(1);
-  const [userDetails, setUserDetails] = useState<any>(null);
+  const [isHydrated, setIsVerifiedHydrated] = useState(false);
+
+  useEffect(() => {
+    setIsVerifiedHydrated(true);
+    if (isVerified && user) {
+      setStep(2);
+    }
+  }, [isVerified, user]);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -33,17 +42,22 @@ export function CustomOrderForm() {
   const [success, setSuccess] = useState(false);
 
   const onSubmit = async (data: FormValues) => {
-    console.log("Full Order Submission:", { user: userDetails, order: data });
+    console.log("Full Order Submission:", { user: user, order: data });
     // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 1000));
     setSuccess(true);
   };
 
-  const handleAuthVerified = (user: any) => {
-    setUserDetails(user);
+  const handleAuthVerified = (userData: any) => {
+    setUser(userData);
+    setVerified(true);
     setStep(2);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
+  if (!isHydrated) {
+    return null; // or a loading spinner
+  }
 
   if (step === 1) {
     return (
@@ -64,7 +78,7 @@ export function CustomOrderForm() {
         <div className="space-y-2">
           <h1 className="text-3xl font-bold tracking-tight text-primary">Custom Food Order</h1>
           <p className="text-muted-foreground">
-             Ordering as <span className="font-semibold text-foreground">{userDetails?.name}</span> ({userDetails?.phone})
+             Ordering as <span className="font-semibold text-foreground">{user?.name}</span> ({user?.phone})
           </p>
         </div>
 
