@@ -26,6 +26,8 @@ const baseSchema = z.object({
   photos: z.any().optional(), // File handling is complex, keeping simple for now
   cuisines: z.array(z.string()).optional(),
   cookingInstructions: z.string().optional(),
+  // Payment Preference
+  paymentPreference: z.enum(["COD", "Online"]).optional(),
 });
 
 // Discriminated union or refinements based on category/orderType
