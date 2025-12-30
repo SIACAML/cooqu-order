@@ -6,12 +6,16 @@ import { formSchema, FormValues } from "../../schema";
 import { OrderBasics } from "./OrderBasics";
 import { ItemDetails } from "./ItemDetails";
 import { OptionalDetails } from "./OptionalDetails";
+import { UserAuth } from "./UserAuth";
 import { useState } from "react";
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 
 export function CustomOrderForm() {
+  const [step, setStep] = useState<1 | 2>(1);
+  const [userDetails, setUserDetails] = useState<any>(null);
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -29,20 +33,39 @@ export function CustomOrderForm() {
   const [success, setSuccess] = useState(false);
 
   const onSubmit = async (data: FormValues) => {
-    console.log("Form Submitted:", data);
+    console.log("Full Order Submission:", { user: userDetails, order: data });
     // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 1000));
     setSuccess(true);
-    // alert(JSON.stringify(data, null, 2));
   };
+
+  const handleAuthVerified = (user: any) => {
+    setUserDetails(user);
+    setStep(2);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  if (step === 1) {
+    return (
+        <div className="space-y-8 max-w-4xl mx-auto">
+             <div className="space-y-2 text-center sm:text-left">
+                <h1 className="text-3xl font-bold tracking-tight text-primary">Start Your Custom Order</h1>
+                <p className="text-muted-foreground">First, let's verify your details so we can reach you.</p>
+            </div>
+            <UserAuth onVerified={handleAuthVerified} />
+        </div>
+    );
+  }
 
   return (
     <Form {...form}>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 max-w-4xl mx-auto">
         
         <div className="space-y-2">
-          <h1 className="text-3xl font-bold tracking-tight">Custom Food Order</h1>
-          <p className="text-muted-foreground">Tell us what you need, and we'll make it happen.</p>
+          <h1 className="text-3xl font-bold tracking-tight text-primary">Custom Food Order</h1>
+          <p className="text-muted-foreground">
+             Ordering as <span className="font-semibold text-foreground">{userDetails?.name}</span> ({userDetails?.phone})
+          </p>
         </div>
 
         {/* Section 1: Required Details */}

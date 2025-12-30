@@ -51,7 +51,7 @@ export function OrderBasics() {
         )}
       />
 
-      {/* Request Category - Tabs */}
+      {/* Request Category - Tabs (Scrollable on Mobile) */}
       <FormField
         control={control}
         name="category"
@@ -59,15 +59,17 @@ export function OrderBasics() {
           <FormItem>
             <FormLabel>Category</FormLabel>
             <FormControl>
-                <Tabs value={field.value} onValueChange={(val) => field.onChange(val)} className="w-full">
-                    <TabsList className="w-full h-auto flex-wrap justify-start gap-1 bg-muted p-1">
-                        {CATEGORIES.map((cat) => (
-                            <TabsTrigger key={cat} value={cat} className="flex-1 min-w-[80px]">
-                                {cat}
-                            </TabsTrigger>
-                        ))}
-                    </TabsList>
-                </Tabs>
+                <div className="w-full overflow-x-auto pb-2 -mx-1 px-1 scrollbar-hide">
+                    <Tabs value={field.value} onValueChange={(val) => field.onChange(val)} className="w-full">
+                        <TabsList className="w-max h-auto flex-nowrap justify-start gap-1 bg-muted p-1">
+                            {CATEGORIES.map((cat) => (
+                                <TabsTrigger key={cat} value={cat} className="flex-1 min-w-[80px] whitespace-nowrap px-4">
+                                    {cat}
+                                </TabsTrigger>
+                            ))}
+                        </TabsList>
+                    </Tabs>
+                </div>
             </FormControl>
             <FormMessage />
           </FormItem>
