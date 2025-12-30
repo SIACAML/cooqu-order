@@ -33,6 +33,12 @@ export const formSchema = baseSchema
   .extend({
     // Delivery specific
     location: z.string().optional(),
+    addressDetails: z.object({
+      area: z.string().optional(),
+      city: z.string().optional(),
+      state: z.string().optional(),
+      pincode: z.string().optional(),
+    }).optional(),
     detailedAddress: z.object({
       houseNo: z.string().optional(),
       landmark: z.string().optional(),

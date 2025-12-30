@@ -1,18 +1,19 @@
 import { useFormContext } from "react-hook-form";
 import { FormValues, ORDER_TYPES, CATEGORIES } from "../../schema";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { CalendarIcon, Clock, MapPin } from "lucide-react";
+import { CalendarIcon } from "lucide-react";
+import { TimePicker } from "./TimePicker";
+import { LocationSearch } from "./LocationSearch";
 
 export function OrderBasics() {
-  const { control, setValue, watch } = useFormContext<FormValues>();
+  const { control, watch } = useFormContext<FormValues>();
   const orderType = watch("orderType");
+  const category = watch("category");
 
   // Get tomorrow's date for min attribute (for disabled matcher)
   const tomorrow = new Date();
@@ -51,7 +52,7 @@ export function OrderBasics() {
         )}
       />
 
-      {/* Request Category - Tabs (Scrollable on Mobile) */}
+      {/* Request Category - Improved UI */}
       <FormField
         control={control}
         name="category"
@@ -59,16 +60,25 @@ export function OrderBasics() {
           <FormItem>
             <FormLabel>Category</FormLabel>
             <FormControl>
-                <div className="w-full overflow-x-auto pb-2 -mx-1 px-1 scrollbar-hide">
-                    <Tabs value={field.value} onValueChange={(val) => field.onChange(val)} className="w-full">
-                        <TabsList className="w-max h-auto flex-nowrap justify-start gap-1 bg-muted p-1">
-                            {CATEGORIES.map((cat) => (
-                                <TabsTrigger key={cat} value={cat} className="flex-1 min-w-[80px] whitespace-nowrap px-4">
-                                    {cat}
-                                </TabsTrigger>
-                            ))}
-                        </TabsList>
-                    </Tabs>
+                <div className="w-full">
+                    {/* Desktop: Flex Wrap, Mobile: Horizontal Scroll */}
+                    <div className="flex sm:flex-wrap overflow-x-auto sm:overflow-visible gap-2 pb-2 sm:pb-0 scrollbar-hide -mx-1 px-1 sm:mx-0 sm:px-0">
+                        {CATEGORIES.map((cat) => (
+                            <button
+                                key={cat}
+                                type="button"
+                                onClick={() => field.onChange(cat)}
+                                className={cn(
+                                    "px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all border",
+                                    field.value === cat
+                                    ? "bg-primary text-primary-foreground border-primary shadow-sm"
+                                    : "bg-background text-muted-foreground border-input hover:bg-muted hover:text-foreground"
+                                )}
+                            >
+                                {cat}
+                            </button>
+                        ))}
+                    </div>
                 </div>
             </FormControl>
             <FormMessage />
@@ -125,14 +135,7 @@ export function OrderBasics() {
             <FormItem>
               <FormLabel>Time</FormLabel>
               <FormControl>
-                <div className="relative">
-                    <Input
-                        type="time"
-                        className="pl-10"
-                        {...field}
-                    />
-                    <Clock className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
-                </div>
+                <TimePicker value={field.value} onChange={field.onChange} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -142,22 +145,13 @@ export function OrderBasics() {
 
       {/* Location - Only for Delivery */}
       {orderType === "Delivery" && (
-        <FormField
-            control={control}
-            name="location"
-            render={({ field }) => (
-                <FormItem className="animate-in fade-in slide-in-from-top-2 duration-300">
-                    <FormLabel>Delivery Location</FormLabel>
-                    <FormControl>
-                         <div className="relative">
-                            <Input placeholder="Search for your address..." className="pl-10" {...field} />
-                            <MapPin className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                        </div>
-                    </FormControl>
-                    <FormMessage />
-                </FormItem>
-            )}
-        />
+        <div className="animate-in fade-in slide-in-from-top-2 duration-300">
+            <FormLabel className="mb-2 block">Delivery Location</FormLabel>
+            <LocationSearch />
+            <p className="text-[0.8rem] text-muted-foreground mt-1">
+                Enter your location to auto-detect address details.
+            </p>
+        </div>
       )}
     </div>
   );

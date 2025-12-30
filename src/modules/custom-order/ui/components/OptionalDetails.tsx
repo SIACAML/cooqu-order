@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useFormContext } from "react-hook-form";
 import { FormValues, CUISINES, EVENT_STYLES } from "../../schema";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -6,9 +6,10 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { ChevronDown, ChevronUp, Upload, MapPinHouse } from "lucide-react";
+import { ChevronDown, ChevronUp, Upload, MapPinHouse, X } from "lucide-react";
+import { useDropzone } from "react-dropzone";
 
 export function OptionalDetails() {
   const { control, watch, setValue } = useFormContext<FormValues>();
@@ -44,32 +45,79 @@ export function OptionalDetails() {
       {isOpen && (
         <CardContent className="p-4 space-y-6 animate-in slide-in-from-top-2 fade-in duration-200 pt-0">
           
-          {/* Photos */}
+          {/* Photos - React Dropzone */}
           <FormField
             control={control}
             name="photos"
-            render={({ field }) => (
-                <FormItem>
-                    <FormLabel>Reference Photos</FormLabel>
-                    <FormControl>
-                        <div className="border-2 border-dashed border-input rounded-lg p-6 flex flex-col items-center justify-center text-muted-foreground hover:bg-muted/50 transition-colors cursor-pointer relative">
-                        <Upload className="h-8 w-8 mb-2 opacity-50" />
-                        <p className="text-sm">Drag & drop or click to upload</p>
-                        <Input 
-                            type="file" 
-                            multiple 
-                            accept="image/*"
-                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                            onChange={(e) => field.onChange(e.target.files)}
-                            // Ref is handled by Input component, but for file input we might need to be careful with value.
-                            // React Hook Form doesn't handle file input value well (security), so usually we leave value undefined or handle manually.
-                            value={undefined}
-                        />
-                        </div>
-                    </FormControl>
-                    <FormMessage />
-                </FormItem>
-            )}
+            render={({ field }) => {
+                const [files, setFiles] = useState<File[]>([]);
+
+                const onDrop = useCallback((acceptedFiles: File[]) => {
+                    const newFiles = [...files, ...acceptedFiles];
+                    setFiles(newFiles);
+                    field.onChange(newFiles);
+                }, [files, field]);
+
+                const removeFile = (index: number) => {
+                    const newFiles = files.filter((_, i) => i !== index);
+                    setFiles(newFiles);
+                    field.onChange(newFiles);
+                }
+
+                const { getRootProps, getInputProps, isDragActive } = useDropzone({ 
+                    onDrop,
+                    accept: {
+                        'image/*': []
+                    }
+                });
+
+                return (
+                    <FormItem>
+                        <FormLabel>Reference Photos</FormLabel>
+                        <FormControl>
+                            <div className="space-y-4">
+                                <div 
+                                    {...getRootProps()} 
+                                    className={cn(
+                                        "border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center text-muted-foreground transition-colors cursor-pointer",
+                                        isDragActive ? "border-primary bg-primary/5" : "border-input hover:bg-muted/50"
+                                    )}
+                                >
+                                    <input {...getInputProps()} />
+                                    <Upload className="h-8 w-8 mb-2 opacity-50" />
+                                    {isDragActive ? (
+                                        <p className="text-sm">Drop the files here ...</p>
+                                    ) : (
+                                        <p className="text-sm">Drag & drop or click to upload</p>
+                                    )}
+                                </div>
+                                
+                                {files.length > 0 && (
+                                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                                        {files.map((file, i) => (
+                                            <div key={i} className="relative group rounded-md overflow-hidden border">
+                                                <img 
+                                                    src={URL.createObjectURL(file)} 
+                                                    alt="preview" 
+                                                    className="h-20 w-full object-cover"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => removeFile(i)}
+                                                    className="absolute top-1 right-1 bg-black/50 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                >
+                                                    <X className="h-3 w-3" />
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                );
+            }}
           />
 
           {/* Cuisines - Multi-select Chips */}
@@ -81,18 +129,24 @@ export function OptionalDetails() {
                     <FormLabel>Cuisines</FormLabel>
                     <FormControl>
                         <div className="flex flex-wrap gap-2">
-                        {CUISINES.map((cuisine) => (
-                            <Button
-                            key={cuisine}
-                            type="button"
-                            variant={selectedCuisines.includes(cuisine) ? "default" : "outline"}
-                            size="sm"
-                            onClick={() => toggleCuisine(cuisine)}
-                            className="rounded-full"
-                            >
-                            {cuisine}
-                            </Button>
-                        ))}
+                        {CUISINES.map((cuisine) => {
+                            const isSelected = selectedCuisines.includes(cuisine);
+                            return (
+                                <Button
+                                key={cuisine}
+                                type="button"
+                                variant={isSelected ? "default" : "outline"}
+                                size="sm"
+                                onClick={() => toggleCuisine(cuisine)}
+                                className={cn(
+                                    "rounded-full transition-all",
+                                    isSelected && "ring-2 ring-offset-1 ring-primary"
+                                )}
+                                >
+                                {cuisine}
+                                </Button>
+                            );
+                        })}
                         </div>
                     </FormControl>
                     <FormMessage />
@@ -209,36 +263,15 @@ export function OptionalDetails() {
             <div className="space-y-4 border-t pt-4 animate-in fade-in">
                 <h4 className="font-medium text-foreground flex items-center gap-2">
                     <MapPinHouse className="h-4 w-4" />
-                    Detailed Address
+                    Additional Address Details (Optional)
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormField
-                        control={control}
-                        name="detailedAddress.houseNo"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>House / Flat No</FormLabel>
-                                <FormControl>
-                                    <Input placeholder="e.g. A-101" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                     <FormField
-                        control={control}
-                        name="detailedAddress.landmark"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Landmark</FormLabel>
-                                <FormControl>
-                                    <Input placeholder="Near Central Park" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
+                     {/* We hide the main address fields here because they are handled in LocationSearch now */}
+                     {/* Only showing truly optional or specific details that might not be in the main address block */}
                 </div>
+                <p className="text-sm text-muted-foreground">
+                    Address is managed in the "Required Details" section.
+                </p>
             </div>
           )}
 
