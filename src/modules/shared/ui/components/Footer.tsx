@@ -32,9 +32,9 @@ export function Footer() {
                         <h4 className="text-lg font-bold mb-8">Quick Links</h4>
                         <ul className="space-y-4 text-zinc-400">
                             <li><Link href="/" className="hover:text-primary transition-colors">Home</Link></li>
-                            <li><Link href="#features" className="hover:text-primary transition-colors">Services</Link></li>
+                            <li><Link href="/#features" className="hover:text-primary transition-colors">Services</Link></li>
                             <li><Link href="/custom-order" className="hover:text-primary transition-colors">Place Order</Link></li>
-                            <li><Link href="#" className="hover:text-primary transition-colors">Explore Cooks</Link></li>
+                            <li><Link href="/contact" className="hover:text-primary transition-colors">Contact Us</Link></li>
                         </ul>
                     </div>
 
@@ -42,10 +42,10 @@ export function Footer() {
                     <div>
                         <h4 className="text-lg font-bold mb-8">Support</h4>
                         <ul className="space-y-4 text-zinc-400">
-                            <li><Link href="#" className="hover:text-primary transition-colors">Help Center</Link></li>
-                            <li><Link href="#" className="hover:text-primary transition-colors">Privacy Policy</Link></li>
-                            <li><Link href="#" className="hover:text-primary transition-colors">Terms of Service</Link></li>
-                            <li><Link href="#" className="hover:text-primary transition-colors">Become a Cook</Link></li>
+                            <li><Link href="/help-center" className="hover:text-primary transition-colors">Help Center</Link></li>
+                            <li><Link href="/privacy-policy" className="hover:text-primary transition-colors">Privacy Policy</Link></li>
+                            <li><Link href="/terms-of-service" className="hover:text-primary transition-colors">Terms of Service</Link></li>
+                            <li><Link href="/#app-download" className="hover:text-primary transition-colors">Get the App</Link></li>
                         </ul>
                     </div>
 

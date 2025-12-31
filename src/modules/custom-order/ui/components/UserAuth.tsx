@@ -4,9 +4,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
+import Link from "next/link";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 
 // Schema for User Details
@@ -15,6 +17,9 @@ const userSchema = z.object({
   lastName: z.string().min(1, "Last name is required"),
   email: z.string().email("Invalid email address"),
   phone: z.string().regex(/^\d{10}$/, "Phone number must be exactly 10 digits"),
+  termsAccepted: z.literal(true, {
+    error_message: "You must accept the terms and conditions to proceed",
+  } as any),
 });
 
 // Schema for OTP
@@ -41,6 +46,7 @@ export function UserAuth({ onVerified }: UserAuthProps) {
       lastName: "",
       email: "",
       phone: "",
+      termsAccepted: false as unknown as true,
     },
   });
 
@@ -76,10 +82,12 @@ export function UserAuth({ onVerified }: UserAuthProps) {
   if (step === "details") {
     return (
       <Card className="w-full max-w-md mx-auto border-none shadow-none sm:border sm:shadow-sm">
-        <CardHeader>
-          <CardTitle className="text-2xl font-bold text-center text-primary">Let's Get Started</CardTitle>
-          <CardDescription className="text-center">
-            Enter your details to proceed with the custom order.
+        <CardHeader className="space-y-2 pb-2">
+          <CardTitle className="text-3xl font-extrabold text-center text-zinc-900 tracking-tight">
+            Let's Get Started
+          </CardTitle>
+          <CardDescription className="text-center text-zinc-500 text-base">
+            Enter your details to proceed with your unique food experience.
           </CardDescription>
         </CardHeader>
         <CardContent className="p-4 sm:p-6">
@@ -153,8 +161,34 @@ export function UserAuth({ onVerified }: UserAuthProps) {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full h-12 text-lg" disabled={isLoading}>
-                {isLoading ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : "Verify & Continue"}
+              <FormField
+                control={userForm.control}
+                name="termsAccepted"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-xl border bg-muted/20 p-4 shadow-sm">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value as boolean}
+                        onCheckedChange={field.onChange}
+                        className="mt-1"
+                      />
+                    </FormControl>
+                    <div className="space-y-1.5 leading-none">
+                      <p className="text-sm font-medium text-zinc-900 leading-relaxed">
+                        I agree to the{" "}
+                        <Link href="/terms-of-service" className="text-primary hover:underline transition-all">Terms & Conditions</Link>
+                        {" "}and{" "}
+                        <Link href="/privacy-policy" className="text-primary hover:underline transition-all">Privacy Policy</Link>
+                      </p>
+                      <p className="text-xs text-zinc-500 leading-normal">
+                        By checking this box, you confirm that you have read and accepted our legal terms.
+                      </p>
+                    </div>
+                  </FormItem>
+                )}
+              />
+              <Button type="submit" className="w-full h-14 text-lg font-bold shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all rounded-xl" disabled={isLoading}>
+                {isLoading ? <Loader2 className="mr-2 h-6 w-6 animate-spin" /> : "Verify & Continue"}
               </Button>
             </form>
           </Form>
@@ -199,10 +233,10 @@ export function UserAuth({ onVerified }: UserAuthProps) {
               )}
             />
             <div className="w-full space-y-4">
-              <Button type="submit" className="w-full h-12 text-lg" disabled={isLoading}>
-                {isLoading ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : "Confirm OTP"}
+              <Button type="submit" className="w-full h-14 text-lg font-bold shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all rounded-xl" disabled={isLoading}>
+                {isLoading ? <Loader2 className="mr-2 h-6 w-6 animate-spin" /> : "Confirm OTP"}
               </Button>
-              <Button variant="ghost" type="button" className="w-full" onClick={() => setStep("details")}>
+              <Button variant="ghost" type="button" className="w-full h-12 text-zinc-500 hover:text-primary transition-colors" onClick={() => setStep("details")}>
                 Change Phone Number
               </Button>
             </div>
