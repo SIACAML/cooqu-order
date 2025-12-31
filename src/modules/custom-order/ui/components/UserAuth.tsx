@@ -11,6 +11,7 @@ import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
+import { useAuthMutations } from "../../hooks/useAuthMutations";
 
 // Schema for User Details
 const userSchema = z.object({
@@ -29,6 +30,7 @@ const otpSchema = z.object({
 });
 
 type UserFormValues = z.infer<typeof userSchema>;
+type OtpFormValues = z.infer<typeof otpSchema>;
 
 interface UserAuthProps {
   onVerified: (userData: UserFormValues) => void;
@@ -36,9 +38,10 @@ interface UserAuthProps {
 
 export function UserAuth({ onVerified }: UserAuthProps) {
   const [step, setStep] = useState<"details" | "otp">("details");
-  const [isLoading, setIsLoading] = useState(false);
   const [userData, setUserData] = useState<UserFormValues | null>(null);
   const toast = useToast();
+  const { signup, verifyOtp, isLoading: isAuthLoading } = useAuthMutations();
+  const isLoading = isAuthLoading; // Using mutation state
 
   // Form 1: User Details
   const userForm = useForm<UserFormValues>({
@@ -53,34 +56,37 @@ export function UserAuth({ onVerified }: UserAuthProps) {
   });
 
   // Form 2: OTP
-  const otpForm = useForm<{ otp: string }>({
+  const otpForm = useForm<OtpFormValues>({
     resolver: zodResolver(otpSchema),
     defaultValues: { otp: "" },
   });
 
-  const onUserSubmit = async (data: UserFormValues) => {
-    setIsLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    setUserData(data);
-    setStep("otp");
-    setIsLoading(false);
+  const onDetailsSubmit = async (data: UserFormValues) => {
+    signup.mutate(data, {
+      onSuccess: () => {
+        setUserData(data);
+        setStep("otp");
+        toast.info("A 4-digit code has been sent to your phone.");
+      },
+      onError: (error: any) => {
+        toast.error(error.message || "Failed to send OTP. Please try again.");
+      }
+    });
   };
 
-  const onOtpSubmit = async (data: { otp: string }) => {
-    setIsLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+  const onOtpSubmit = async (data: OtpFormValues) => {
+    if (!userData) return;
 
-    if (data.otp === "1234") {
-      setIsLoading(false);
-      toast.success("Phone verified successfully!");
-      if (userData) {
+    verifyOtp.mutate({ phone: userData.phone, otp: data.otp }, {
+      onSuccess: () => {
+        toast.success("Phone verified successfully!");
         onVerified(userData);
+      },
+      onError: (error: any) => {
+        toast.error(error.message || "Invalid OTP code. Please try again.");
+        otpForm.setError("otp", { message: "Invalid OTP. Try 1234" });
       }
-    } else {
-      setIsLoading(false);
-      toast.error("Invalid OTP code. Please try again.");
-      otpForm.setError("otp", { message: "Invalid OTP. Try 1234" });
-    }
+    });
   };
 
   if (step === "details") {
@@ -96,7 +102,7 @@ export function UserAuth({ onVerified }: UserAuthProps) {
         </CardHeader>
         <CardContent className="p-4 sm:p-6">
           <Form {...userForm}>
-            <form onSubmit={userForm.handleSubmit(onUserSubmit)} className="space-y-6">
+            <form onSubmit={userForm.handleSubmit(onDetailsSubmit)} className="space-y-6">
               <div className="grid grid-cols-2 gap-4">
                 <FormField
                   control={userForm.control}
