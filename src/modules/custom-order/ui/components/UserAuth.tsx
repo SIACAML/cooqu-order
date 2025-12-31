@@ -69,7 +69,7 @@ export function UserAuth({ onVerified }: UserAuthProps) {
         if (res.success) {
           setUserData(data);
           setStep("otp");
-          toast.info("A 4-digit code has been sent to your phone.");
+          toast.info("A 6-digit code has been sent to your phone.");
         } else {
           toast.error(res.message || "Signup failed");
         }
