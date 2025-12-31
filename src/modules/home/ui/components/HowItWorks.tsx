@@ -13,7 +13,7 @@ const steps = [
     },
     {
         title: "Accept & Confirm",
-        description: "Choose the cook that fits your needs and confirm your order via the Cooqu app.",
+        description: "Choose the cook that fits your needs and confirm your order via the CooQu app.",
         icon: ThumbsUp,
     },
     {

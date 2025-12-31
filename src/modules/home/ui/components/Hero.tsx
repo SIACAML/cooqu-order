@@ -32,7 +32,7 @@ export function Hero() {
                     </h1>
 
                     <p className="text-lg md:text-xl text-zinc-200 max-w-lg leading-relaxed">
-                        Cooqu connects you with passionate home cooks for custom meals,
+                        CooQu connects you with passionate home cooks for custom meals,
                         gourmet catering, and unique dining experiences you won&apos;t find anywhere else.
                     </p>
 

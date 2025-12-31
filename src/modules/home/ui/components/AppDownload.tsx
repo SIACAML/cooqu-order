@@ -18,7 +18,7 @@ export function AppDownload() {
                             </div>
 
                             <h2 className="text-4xl md:text-5xl font-bold leading-tight">
-                                Get the Cooqu App for the <br /> Full Experience
+                                Get the CooQu App for the <br /> Full Experience
                             </h2>
 
                             <p className="text-lg text-primary-foreground/90 max-w-xl">
@@ -58,7 +58,7 @@ export function AppDownload() {
                                     <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-zinc-950 to-transparent z-20" />
                                     <Image
                                         src="/images/app-mockup.png"
-                                        alt="Cooqu App Mockup"
+                                        alt="CooQu App Mockup"
                                         fill
                                         className="object-cover z-10"
                                     />

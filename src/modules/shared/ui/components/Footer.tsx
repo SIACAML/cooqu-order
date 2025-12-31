@@ -12,7 +12,7 @@ export function Footer() {
                             <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center group-hover:rotate-12 transition-transform">
                                 <UtensilsCrossed className="w-6 h-6 text-white" />
                             </div>
-                            <span className="text-2xl font-bold tracking-tight">Cooqu</span>
+                            <span className="text-2xl font-bold tracking-tight">CooQu</span>
                         </Link>
                         <p className="text-zinc-400 leading-relaxed max-w-xs">
                             Empowering home cooks to share their passion and providing you the
@@ -55,22 +55,22 @@ export function Footer() {
                         <ul className="space-y-6 text-zinc-400">
                             <li className="flex gap-3 items-start">
                                 <MapPin className="w-5 h-5 text-primary shrink-0" />
-                                <span>Bengaluru, Karnataka, India</span>
+                                <span>Ahemadabad, Gujarat, India</span>
                             </li>
                             <li className="flex gap-3 items-center">
                                 <Mail className="w-5 h-5 text-primary shrink-0" />
-                                <span>support@cooqu.co.in</span>
+                                <span>admin@cooqu.co.in</span>
                             </li>
                             <li className="flex gap-3 items-center">
                                 <Phone className="w-5 h-5 text-primary shrink-0" />
-                                <span>+91 98765 43210</span>
+                                <span>+91 6353 593 662</span>
                             </li>
                         </ul>
                     </div>
                 </div>
 
                 <div className="pt-10 border-t border-white/10 text-center text-zinc-500 text-sm">
-                    <p>© {new Date().getFullYear()} Cooqu India. All rights reserved.</p>
+                    <p>© {new Date().getFullYear()} CooQu India. All rights reserved.</p>
                 </div>
             </div>
         </footer>

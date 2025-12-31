@@ -34,7 +34,7 @@ const features = [
     },
     {
         title: "Verified Cooks",
-        description: "Every Cooqu cook is vetted for quality, hygiene, and authentic home-style expertise.",
+        description: "Every CooQu cook is vetted for quality, hygiene, and authentic home-style expertise.",
         icon: ShieldCheck,
         color: "bg-red-100 text-red-600",
     },
@@ -53,7 +53,7 @@ export function Features() {
                 <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
                     <h2 className="text-primary font-bold tracking-wider uppercase text-sm">Our Services</h2>
                     <h3 className="text-4xl md:text-5xl font-bold text-zinc-900 leading-tight">
-                        Personalize Your Food Experience with Cooqu India
+                        Personalize Your Food Experience with CooQu India
                     </h3>
                     <p className="text-lg text-zinc-600">
                         From daily meals to special celebrations, our community of talented home cooks

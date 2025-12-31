@@ -34,7 +34,7 @@ export function Navbar() {
                         <span className={cn(
                             "text-2xl font-bold tracking-tight transition-colors",
                             isScrolled ? "text-zinc-900" : "text-white"
-                        )}>Cooqu</span>
+                        )}>CooQu</span>
                     </Link>
 
                     {/* Desktop Nav */}
