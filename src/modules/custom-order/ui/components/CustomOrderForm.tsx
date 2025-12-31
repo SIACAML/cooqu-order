@@ -31,7 +31,7 @@ export function CustomOrderForm() {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      orderType: "Delivery",
+      orderType: ["Delivery"],
       category: "Dish",
       dietType: "Veg",
       quantity: 1,
@@ -65,63 +65,117 @@ export function CustomOrderForm() {
 
   if (step === 1) {
     return (
-        <div className="space-y-8 max-w-4xl mx-auto">
-             <div className="space-y-2 text-center sm:text-left">
-                <h1 className="text-3xl font-bold tracking-tight text-primary">Start Your Custom Order</h1>
-                <p className="text-muted-foreground">First, let's verify your details so we can reach you.</p>
-            </div>
-            <UserAuth onVerified={handleAuthVerified} />
+      <div className="space-y-8 max-w-4xl mx-auto">
+        <div className="space-y-2 text-center sm:text-left">
+          <h1 className="text-3xl font-bold tracking-tight text-primary">Start Your Custom Order</h1>
+          <p className="text-muted-foreground">First, let's verify your details so we can reach you.</p>
         </div>
+        <UserAuth onVerified={handleAuthVerified} />
+      </div>
     );
   }
 
   if (success) {
-      return (
-          <Card className="max-w-2xl mx-auto mt-8 border-green-200 bg-green-50">
-              <CardContent className="flex flex-col items-center justify-center p-12 text-center space-y-4">
-                  <div className="h-16 w-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-2">
-                      <PartyPopper className="h-8 w-8" />
+    return (
+      <Card className="max-w-2xl mx-auto mt-8 border-green-200 bg-green-50 shadow-lg">
+        <CardContent className="flex flex-col items-center justify-center p-8 text-center space-y-6">
+          <div className="h-20 w-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-2 animate-in zoom-in spin-in-180 duration-500">
+            <PartyPopper className="h-10 w-10" />
+          </div>
+
+          <div className="space-y-2">
+            <h2 className="text-3xl font-bold text-green-800">Request Sent Successfully!</h2>
+            <div className="text-green-700 font-medium">
+              Thanks {user?.name}, we've received your request!
+            </div>
+          </div>
+
+          <div className="w-full bg-white/60 p-6 rounded-xl border border-green-100 text-left space-y-4">
+            <h3 className="font-semibold text-lg text-green-900 border-b border-green-200 pb-2">What happens next?</h3>
+
+            <div className="space-y-4">
+              <div className="flex gap-3">
+                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-green-200 text-green-800 flex items-center justify-center font-bold text-sm">1</div>
+                <div>
+                  <h4 className="font-semibold text-green-900">Quotes from Cooks</h4>
+                  <p className="text-sm text-green-700">Your request has been sent to nearby cooks. They will review it and prepare a custom quote for you.</p>
+                </div>
+              </div>
+
+              <div className="flex gap-3">
+                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-green-200 text-green-800 flex items-center justify-center font-bold text-sm">2</div>
+                <div>
+                  <h4 className="font-semibold text-green-900">Download the App</h4>
+                  <p className="text-sm text-green-700">You will receive quotes <b>only on our mobile app</b>. Download it to track your request.</p>
+                  <div className="flex gap-2 mt-2">
+                    <Button size="sm" variant="outline" className="h-8 text-xs border-green-600 text-green-700 hover:bg-green-100">
+                      Download for Android
+                    </Button>
+                    <Button size="sm" variant="outline" className="h-8 text-xs border-green-600 text-green-700 hover:bg-green-100">
+                      Download for iOS
+                    </Button>
                   </div>
-                  <h2 className="text-2xl font-bold text-green-800">Request Received Successfully!</h2>
-                  <p className="text-green-700 max-w-md">
-                      Thank you, {user?.name}. We have received your custom order request. Our team will review it and contact you shortly at {user?.phone}.
-                  </p>
-                  <Button variant="outline" className="mt-4" onClick={() => {
-                      setSuccess(false);
-                      form.reset();
-                      window.scrollTo({ top: 0, behavior: 'smooth' });
-                  }}>
-                      Place Another Request
-                  </Button>
-              </CardContent>
-          </Card>
-      )
+                </div>
+              </div>
+
+              <div className="flex gap-3">
+                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-green-200 text-green-800 flex items-center justify-center font-bold text-sm">3</div>
+                <div>
+                  <h4 className="font-semibold text-green-900">Login & Accept Quote</h4>
+                  <p className="text-sm text-green-700">Login with your email <b>{user?.email}</b> (credentials sent to inbox). Review and accept a quote to confirm your order.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="text-sm text-muted-foreground pt-4 border-t border-green-200 w-full">
+            <p className="font-medium mb-2">Need help? Contact Support:</p>
+            <div className="flex justify-center gap-4">
+              <a href="mailto:support@customorder.com" className="flex items-center gap-1 text-green-700 hover:underline">
+                📧 support@customorder.com
+              </a>
+              <a href="https://wa.me/1234567890" target="_blank" className="flex items-center gap-1 text-green-700 hover:underline">
+                💬 WhatsApp Team
+              </a>
+            </div>
+          </div>
+
+          <Button variant="outline" className="mt-4 border-green-600 text-green-700 hover:bg-green-50" onClick={() => {
+            setSuccess(false);
+            form.reset();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}>
+            Place Another Request
+          </Button>
+        </CardContent>
+      </Card>
+    )
   }
 
   return (
     <Form {...form}>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 max-w-4xl mx-auto pb-12">
-        
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 max-w-4xl mx-auto pb-24 px-4 sm:px-0">
+
         <div className="space-y-2">
           <h1 className="text-3xl font-bold tracking-tight text-primary">Custom Food Order</h1>
           <p className="text-muted-foreground">
-             Ordering as <span className="font-semibold text-foreground">{user?.name}</span> ({user?.phone})
+            Ordering as <span className="font-semibold text-foreground">{user?.name}</span> ({user?.phone})
           </p>
         </div>
 
         {/* Section 1: Required Details */}
-        <Card>
-            <CardHeader>
-                <div className="flex items-center gap-2">
-                    <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold">1</span>
-                    <CardTitle>Required Details</CardTitle>
-                </div>
-                <CardDescription>Basic information about your order.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-                <OrderBasics />
-                <ItemDetails />
-            </CardContent>
+        <Card className="border-none sm:border shadow-none sm:shadow-sm bg-transparent sm:bg-card">
+          <CardHeader className="px-0 sm:px-6">
+            <div className="flex items-center gap-2">
+              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold">1</span>
+              <CardTitle>Required Details</CardTitle>
+            </div>
+            <CardDescription>Basic information about your order.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6 px-0 sm:px-6">
+            <OrderBasics />
+            <ItemDetails />
+          </CardContent>
         </Card>
 
         {/* Section 2: Optional Details */}
@@ -130,24 +184,30 @@ export function CustomOrderForm() {
         {/* Section 3: Payment Preference */}
         <PaymentPreference />
 
-        <div className="pt-2 sticky bottom-4 z-10 mx-auto w-full max-w-4xl px-4 sm:px-0 sm:static sm:z-auto">
+        <div className="pt-4 sticky bottom-0 z-20 mx-auto w-full max-w-4xl bg-background/80 backdrop-blur-sm sm:bg-transparent pb-4 sm:static sm:z-auto space-y-2 border-t sm:border-none">
+          {/* Error Message for Validation - Visible only when trying to submit invalid form */}
+          {form.formState.isSubmitted && !form.formState.isValid && (
+            <div className="bg-destructive/15 text-destructive text-[0.8rem] p-2 rounded-md border border-destructive/20 text-center animate-in fade-in slide-in-from-bottom-2 font-medium">
+              Please fill in all required details correctly to proceed.
+            </div>
+          )}
           <Button
             type="submit"
             disabled={isSubmitting}
-            className="w-full h-14 text-lg font-semibold shadow-lg hover:shadow-xl transition-all"
+            className="w-full h-12 sm:h-14 text-base sm:text-lg font-semibold shadow-lg hover:shadow-xl transition-all"
             size="lg"
           >
             {isSubmitting ? (
-                <>
-                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                    Submitting Request...
-                </>
+              <>
+                <Loader2 className="mr-2 h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
+                Submitting Request...
+              </>
             ) : (
-                "Place Free Order Request"
+              "Place Free Order Request"
             )}
           </Button>
-          <p className="text-xs text-center text-muted-foreground mt-3">
-              * No payment required now. Pay only after order confirmation.
+          <p className="text-[0.65rem] sm:text-xs text-center text-muted-foreground">
+            * No payment required now. Pay only after order confirmation.
           </p>
         </div>
       </form>

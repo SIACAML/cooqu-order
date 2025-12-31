@@ -59,15 +59,15 @@ export function UserAuth({ onVerified }: UserAuthProps) {
   const onOtpSubmit = async (data: { otp: string }) => {
     setIsLoading(true);
     await new Promise((resolve) => setTimeout(resolve, 1500));
-    
+
     if (data.otp === "1234") {
-        setIsLoading(false);
-        if (userData) {
-            onVerified(userData);
-        }
+      setIsLoading(false);
+      if (userData) {
+        onVerified(userData);
+      }
     } else {
-        setIsLoading(false);
-        otpForm.setError("otp", { message: "Invalid OTP. Try 1234" });
+      setIsLoading(false);
+      otpForm.setError("otp", { message: "Invalid OTP. Try 1234" });
     }
   };
 
@@ -80,7 +80,7 @@ export function UserAuth({ onVerified }: UserAuthProps) {
             Enter your details to proceed with the custom order.
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-4 sm:p-6">
           <Form {...userForm}>
             <form onSubmit={userForm.handleSubmit(onUserSubmit)} className="space-y-6">
               <FormField
@@ -140,40 +140,40 @@ export function UserAuth({ onVerified }: UserAuthProps) {
           We sent a code to <span className="font-semibold text-foreground">{userData?.phone}</span>
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-4 sm:p-6">
         <Form {...otpForm}>
           <form onSubmit={otpForm.handleSubmit(onOtpSubmit)} className="space-y-8 flex flex-col items-center">
-             <Controller 
-                control={otpForm.control} 
-                name="otp" 
-                defaultValue="" 
-                render={({ field }) => ( 
-                    <FormItem> 
-                    <FormControl> 
-                        <InputOTP 
-                            maxLength={4} 
-                            value={field.value} 
-                            onChange={field.onChange} 
-                        > 
-                        <InputOTPGroup> 
-                            <InputOTPSlot index={0} className="h-14 w-14 text-lg" /> 
-                            <InputOTPSlot index={1} className="h-14 w-14 text-lg" /> 
-                            <InputOTPSlot index={2} className="h-14 w-14 text-lg" /> 
-                            <InputOTPSlot index={3} className="h-14 w-14 text-lg" /> 
-                        </InputOTPGroup> 
-                        </InputOTP> 
-                    </FormControl> 
-                    <FormMessage /> 
-                    </FormItem> 
-                )} 
-            /> 
+            <Controller
+              control={otpForm.control}
+              name="otp"
+              defaultValue=""
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <InputOTP
+                      maxLength={4}
+                      value={field.value}
+                      onChange={field.onChange}
+                    >
+                      <InputOTPGroup>
+                        <InputOTPSlot index={0} className="h-14 w-14 text-lg" />
+                        <InputOTPSlot index={1} className="h-14 w-14 text-lg" />
+                        <InputOTPSlot index={2} className="h-14 w-14 text-lg" />
+                        <InputOTPSlot index={3} className="h-14 w-14 text-lg" />
+                      </InputOTPGroup>
+                    </InputOTP>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <div className="w-full space-y-4">
-                 <Button type="submit" className="w-full h-12 text-lg" disabled={isLoading}>
-                    {isLoading ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : "Confirm OTP"}
-                </Button>
-                <Button variant="ghost" type="button" className="w-full" onClick={() => setStep("details")}>
-                    Change Phone Number
-                </Button>
+              <Button type="submit" className="w-full h-12 text-lg" disabled={isLoading}>
+                {isLoading ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : "Confirm OTP"}
+              </Button>
+              <Button variant="ghost" type="button" className="w-full" onClick={() => setStep("details")}>
+                Change Phone Number
+              </Button>
             </div>
           </form>
         </Form>

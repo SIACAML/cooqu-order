@@ -29,17 +29,23 @@ export function OrderBasics() {
           <FormItem>
             <FormLabel>Order Type</FormLabel>
             <FormControl>
-              <div className="flex p-1 bg-muted rounded-lg">
+              <div className="flex gap-2 p-1 bg-muted rounded-lg">
                 {ORDER_TYPES.map((type) => (
                   <button
                     key={type}
                     type="button"
-                    onClick={() => field.onChange(type)}
+                    onClick={() => {
+                      const current = field.value || [];
+                      const newValue = current.includes(type)
+                        ? current.filter((v: string) => v !== type)
+                        : [...current, type];
+                      field.onChange(newValue);
+                    }}
                     className={cn(
                       "flex-1 py-2 px-4 text-sm font-medium rounded-md transition-all duration-200",
-                      field.value === type
-                        ? "bg-background text-foreground shadow-sm ring-1 ring-border"
-                        : "text-muted-foreground hover:text-foreground"
+                      field.value?.includes(type)
+                        ? "bg-primary text-primary-foreground shadow-md"
+                        : "text-muted-foreground hover:text-foreground hover:bg-background/50"
                     )}
                   >
                     {type}
@@ -60,26 +66,26 @@ export function OrderBasics() {
           <FormItem>
             <FormLabel>Category</FormLabel>
             <FormControl>
-                <div className="w-full">
-                    {/* Desktop: Flex Wrap, Mobile: Horizontal Scroll */}
-                    <div className="flex sm:flex-wrap overflow-x-auto sm:overflow-visible gap-2 pb-2 sm:pb-0 scrollbar-hide -mx-1 px-1 sm:mx-0 sm:px-0">
-                        {CATEGORIES.map((cat) => (
-                            <button
-                                key={cat}
-                                type="button"
-                                onClick={() => field.onChange(cat)}
-                                className={cn(
-                                    "px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all border",
-                                    field.value === cat
-                                    ? "bg-primary text-primary-foreground border-primary shadow-sm"
-                                    : "bg-background text-muted-foreground border-input hover:bg-muted hover:text-foreground"
-                                )}
-                            >
-                                {cat}
-                            </button>
-                        ))}
-                    </div>
+              <div className="w-full">
+                {/* Desktop: Flex Wrap, Mobile: Horizontal Scroll */}
+                <div className="flex flex-wrap gap-2 pb-2">
+                  {CATEGORIES.map((cat) => (
+                    <button
+                      key={cat}
+                      type="button"
+                      onClick={() => field.onChange(cat)}
+                      className={cn(
+                        "px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all border",
+                        field.value === cat
+                          ? "bg-primary text-primary-foreground border-primary shadow-sm"
+                          : "bg-background text-muted-foreground border-input hover:bg-muted hover:text-foreground"
+                      )}
+                    >
+                      {cat}
+                    </button>
+                  ))}
                 </div>
+              </div>
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -144,13 +150,13 @@ export function OrderBasics() {
       </div>
 
       {/* Location - Only for Delivery */}
-      {orderType === "Delivery" && (
+      {orderType?.includes("Delivery") && (
         <div className="animate-in fade-in slide-in-from-top-2 duration-300">
-            <FormLabel className="mb-2 block">Delivery Location</FormLabel>
-            <LocationSearch />
-            <p className="text-[0.8rem] text-muted-foreground mt-1">
-                Enter your location to auto-detect address details.
-            </p>
+          <FormLabel className="mb-2 block">Delivery Location</FormLabel>
+          <LocationSearch />
+          <p className="text-[0.8rem] text-muted-foreground mt-1">
+            Enter your location to auto-detect address details.
+          </p>
         </div>
       )}
     </div>

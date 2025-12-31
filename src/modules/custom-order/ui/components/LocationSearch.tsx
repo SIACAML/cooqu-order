@@ -19,6 +19,7 @@ import { useFormContext } from "react-hook-form";
 import { useUserStore } from "../../store/userStore";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { LocationMap } from "./LocationMap";
 
 declare global {
   interface Window {
@@ -120,7 +121,7 @@ export function LocationSearch() {
     try {
       const results = await getGeocode({ address: selectedAddress });
       const { lat, lng } = await getLatLng(results[0]);
-
+      console.log(results, 'This is results');
       const addressComponents = results[0].address_components;
       let area = "";
       let city = "";
@@ -183,11 +184,76 @@ export function LocationSearch() {
     }
   };
 
+  const handleClearAddress = () => {
+    setAddress(null);
+    setTempAddress(null);
+    setIsEditing(false);
+    setPlacesValue("", false);
+    setValue("location", "");
+    setValue("addressDetails.area", "");
+    setValue("addressDetails.city", "");
+    setValue("addressDetails.state", "");
+    setValue("addressDetails.pincode", "");
+    setValue("detailedAddress.houseNo", "");
+    setValue("detailedAddress.landmark", "");
+  };
+
+  const handleChangeLocation = () => {
+    // Clear temp address and go back to search
+    setTempAddress(null);
+    setIsEditing(false);
+    setPlacesValue("", false);
+  };
+
+  const handleMapLocationChange = async (newLat: number, newLng: number) => {
+    try {
+      // Reverse geocode to get address from coordinates
+      const results = await getGeocode({ location: { lat: newLat, lng: newLng } });
+
+      if (results && results[0]) {
+        const addressComponents = results[0].address_components;
+        let area = "";
+        let city = "";
+        let state = "";
+        let pincode = "";
+
+        addressComponents.forEach((component: any) => {
+          if (component.types.includes("sublocality") || component.types.includes("neighborhood")) {
+            area = component.long_name;
+          }
+          if (component.types.includes("locality")) {
+            city = component.long_name;
+          }
+          if (component.types.includes("administrative_area_level_1")) {
+            state = component.long_name;
+          }
+          if (component.types.includes("postal_code")) {
+            pincode = component.long_name;
+          }
+        });
+
+        // Update temp address with new coordinates and address, but keep user-entered houseNo and landmark
+        setTempAddress({
+          ...tempAddress,
+          fullAddress: results[0].formatted_address,
+          area,
+          city,
+          state,
+          pincode,
+          lat: newLat,
+          lng: newLng,
+        });
+      }
+    } catch (error) {
+      console.error("Error reverse geocoding:", error);
+    }
+  };
+
   // View 1: Saved Address Summary
   if (address && !isEditing) {
     return (
       <Card className="border-primary/20 bg-primary/5">
-        <CardContent className="p-4 flex items-start justify-between">
+        <CardContent className="p-3 sm:p-4 flex items-start justify-between gap-2">
           <div className="space-y-1">
             <div className="flex items-center gap-2 font-medium text-primary">
               <MapPin className="h-4 w-4" />
@@ -198,9 +264,14 @@ export function LocationSearch() {
               {address.houseNo ? `${address.houseNo}, ` : ''}{address.area}, {address.city} - {address.pincode}
             </p>
           </div>
-          <Button variant="ghost" size="sm" onClick={handleEditSavedAddress}>
-            <Pencil className="h-4 w-4 mr-1" /> Edit
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="ghost" size="sm" onClick={handleEditSavedAddress}>
+              <Pencil className="h-4 w-4 mr-1" /> Edit
+            </Button>
+            <Button variant="ghost" size="sm" onClick={handleClearAddress} className="text-destructive hover:text-destructive">
+              Clear
+            </Button>
+          </div>
         </CardContent>
       </Card>
     );
@@ -209,13 +280,34 @@ export function LocationSearch() {
   // View 2: Confirmation / Edit Form
   if (isEditing && tempAddress) {
     return (
-      <div className="space-y-4 border rounded-lg p-4 bg-background animate-in fade-in slide-in-from-top-2">
-        <div className="flex items-center justify-between">
+      <div className="space-y-4 border rounded-lg p-3 sm:p-4 bg-background animate-in fade-in slide-in-from-top-2">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0">
           <h4 className="font-medium">Confirm Address Details</h4>
-          <Button variant="ghost" size="sm" onClick={() => setIsEditing(false)}>Cancel</Button>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={handleChangeLocation} className="flex-1 sm:flex-none h-8 text-xs">
+              Change Location
+            </Button>
+            <Button variant="ghost" size="sm" onClick={() => setIsEditing(false)} className="h-8 text-xs">Cancel</Button>
+          </div>
         </div>
 
         <div className="space-y-3">
+          <div className="p-3 bg-blue-50 border border-blue-200 rounded-md text-xs text-blue-800">
+            <p className="font-medium mb-1">📍 Location from Google Maps</p>
+            <p>Fields filled by Google Maps are locked for accuracy. Empty fields can be edited manually.</p>
+          </div>
+
+          {/* Visual map confirmation */}
+          <div className="space-y-1">
+            <Label className="text-xs text-muted-foreground">Map View</Label>
+            <LocationMap
+              lat={tempAddress.lat}
+              lng={tempAddress.lng}
+              address={tempAddress.fullAddress}
+              onLocationChange={handleMapLocationChange}
+            />
+          </div>
+
           <div className="space-y-1">
             <Label className="text-xs text-muted-foreground">Selected Location</Label>
             <div className="flex items-center gap-2 p-2 bg-muted rounded text-sm">
@@ -224,7 +316,7 @@ export function LocationSearch() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1">
               <Label htmlFor="houseNo">House / Flat No</Label>
               <Input
@@ -235,42 +327,58 @@ export function LocationSearch() {
               />
             </div>
             <div className="space-y-1">
-              <Label htmlFor="area">Area</Label>
+              <Label htmlFor="area" className="flex items-center gap-1">
+                Area {tempAddress.area && <span className="text-xs text-muted-foreground">🔒</span>}
+              </Label>
               <Input
                 id="area"
                 value={tempAddress.area}
-                onChange={(e) => setTempAddress({ ...tempAddress, area: e.target.value })}
-                placeholder="Area"
+                readOnly={!!tempAddress.area} // Only lock if Google provided value
+                onChange={(e) => !tempAddress.area && setTempAddress({ ...tempAddress, area: e.target.value })}
+                className={tempAddress.area ? "bg-muted cursor-not-allowed" : ""}
+                placeholder={tempAddress.area ? "From Google Maps" : "Enter area"}
               />
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             <div className="space-y-1">
-              <Label htmlFor="city">City</Label>
+              <Label htmlFor="city" className="flex items-center gap-1">
+                City {tempAddress.city && <span className="text-xs text-muted-foreground">🔒</span>}
+              </Label>
               <Input
                 id="city"
                 value={tempAddress.city}
-                onChange={(e) => setTempAddress({ ...tempAddress, city: e.target.value })}
-                placeholder="City"
+                readOnly={!!tempAddress.city}
+                onChange={(e) => !tempAddress.city && setTempAddress({ ...tempAddress, city: e.target.value })}
+                className={tempAddress.city ? "bg-muted cursor-not-allowed" : ""}
+                placeholder={tempAddress.city ? "From Google Maps" : "Enter city"}
               />
             </div>
             <div className="space-y-1">
-              <Label htmlFor="state">State</Label>
+              <Label htmlFor="state" className="flex items-center gap-1">
+                State {tempAddress.state && <span className="text-xs text-muted-foreground">🔒</span>}
+              </Label>
               <Input
                 id="state"
                 value={tempAddress.state}
-                onChange={(e) => setTempAddress({ ...tempAddress, state: e.target.value })}
-                placeholder="State"
+                readOnly={!!tempAddress.state}
+                onChange={(e) => !tempAddress.state && setTempAddress({ ...tempAddress, state: e.target.value })}
+                className={tempAddress.state ? "bg-muted cursor-not-allowed" : ""}
+                placeholder={tempAddress.state ? "From Google Maps" : "Enter state"}
               />
             </div>
             <div className="space-y-1">
-              <Label htmlFor="pincode">Pincode</Label>
+              <Label htmlFor="pincode" className="flex items-center gap-1">
+                Pincode {tempAddress.pincode && <span className="text-xs text-muted-foreground">🔒</span>}
+              </Label>
               <Input
                 id="pincode"
                 value={tempAddress.pincode}
-                onChange={(e) => setTempAddress({ ...tempAddress, pincode: e.target.value })}
-                placeholder="123456"
+                readOnly={!!tempAddress.pincode}
+                onChange={(e) => !tempAddress.pincode && setTempAddress({ ...tempAddress, pincode: e.target.value })}
+                className={tempAddress.pincode ? "bg-muted cursor-not-allowed" : ""}
+                placeholder={tempAddress.pincode ? "From Google Maps" : "Enter pincode"}
               />
             </div>
           </div>
