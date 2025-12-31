@@ -4,6 +4,8 @@ import "./globals.css";
 import { ProgressBar } from '@lexz451/next-nprogress';
 import { QueryProvider } from "@/providers/QueryProvider";
 
+import { Suspense } from "react";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -29,13 +31,15 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ProgressBar
-          color="#FF6B00"
-          height='2px'
-          options={{
-            showSpinner: false,
-          }}
-        />
+        <Suspense fallback={null}>
+          <ProgressBar
+            color="#FF6B00"
+            height='2px'
+            options={{
+              showSpinner: false,
+            }}
+          />
+        </Suspense>
         <QueryProvider>
           {children}
         </QueryProvider>
