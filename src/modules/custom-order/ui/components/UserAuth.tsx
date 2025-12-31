@@ -12,6 +12,7 @@ import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { useAuthMutations } from "../../hooks/useAuthMutations";
+import { useUserStore } from "../../store/userStore";
 
 // Schema for User Details
 const userSchema = z.object({
@@ -26,7 +27,7 @@ const userSchema = z.object({
 
 // Schema for OTP
 const otpSchema = z.object({
-  otp: z.string().length(4, "OTP must be 4 digits"),
+  otp: z.string().length(6, "OTP must be 6 digits"),
 });
 
 type UserFormValues = z.infer<typeof userSchema>;
@@ -41,7 +42,8 @@ export function UserAuth({ onVerified }: UserAuthProps) {
   const [userData, setUserData] = useState<UserFormValues | null>(null);
   const toast = useToast();
   const { signup, verifyOtp, isLoading: isAuthLoading } = useAuthMutations();
-  const isLoading = isAuthLoading; // Using mutation state
+  const userId = useUserStore((state) => state.userId);
+  const isLoading = isAuthLoading;
 
   // Form 1: User Details
   const userForm = useForm<UserFormValues>({
@@ -63,10 +65,14 @@ export function UserAuth({ onVerified }: UserAuthProps) {
 
   const onDetailsSubmit = async (data: UserFormValues) => {
     signup.mutate(data, {
-      onSuccess: () => {
-        setUserData(data);
-        setStep("otp");
-        toast.info("A 4-digit code has been sent to your phone.");
+      onSuccess: (res) => {
+        if (res.success) {
+          setUserData(data);
+          setStep("otp");
+          toast.info("A 4-digit code has been sent to your phone.");
+        } else {
+          toast.error(res.message || "Signup failed");
+        }
       },
       onError: (error: any) => {
         toast.error(error.message || "Failed to send OTP. Please try again.");
@@ -75,12 +81,16 @@ export function UserAuth({ onVerified }: UserAuthProps) {
   };
 
   const onOtpSubmit = async (data: OtpFormValues) => {
-    if (!userData) return;
+    if (!userId || !userData) return;
 
-    verifyOtp.mutate({ phone: userData.phone, otp: data.otp }, {
-      onSuccess: () => {
-        toast.success("Phone verified successfully!");
-        onVerified(userData);
+    verifyOtp.mutate({ userId, otp: data.otp }, {
+      onSuccess: (res) => {
+        if (res.success) {
+          toast.success("Phone verified successfully!");
+          onVerified(userData);
+        } else {
+          toast.error(res.message || "Verification failed");
+        }
       },
       onError: (error: any) => {
         toast.error(error.message || "Invalid OTP code. Please try again.");
@@ -226,15 +236,21 @@ export function UserAuth({ onVerified }: UserAuthProps) {
                 <FormItem>
                   <FormControl>
                     <InputOTP
-                      maxLength={4}
+                      maxLength={6}
                       value={field.value}
-                      onChange={field.onChange}
+                      onChange={(val) => {
+                        const numericVal = val.replace(/\D/g, "");
+                        field.onChange(numericVal);
+                      }}
+                      inputMode="numeric"
                     >
                       <InputOTPGroup>
-                        <InputOTPSlot index={0} className="h-14 w-14 text-lg" />
-                        <InputOTPSlot index={1} className="h-14 w-14 text-lg" />
-                        <InputOTPSlot index={2} className="h-14 w-14 text-lg" />
-                        <InputOTPSlot index={3} className="h-14 w-14 text-lg" />
+                        <InputOTPSlot index={0} className="h-12 w-12 sm:h-14 sm:w-14 text-lg" />
+                        <InputOTPSlot index={1} className="h-12 w-12 sm:h-14 sm:w-14 text-lg" />
+                        <InputOTPSlot index={2} className="h-12 w-12 sm:h-14 sm:w-14 text-lg" />
+                        <InputOTPSlot index={3} className="h-12 w-12 sm:h-14 sm:w-14 text-lg" />
+                        <InputOTPSlot index={4} className="h-12 w-12 sm:h-14 sm:w-14 text-lg" />
+                        <InputOTPSlot index={5} className="h-12 w-12 sm:h-14 sm:w-14 text-lg" />
                       </InputOTPGroup>
                     </InputOTP>
                   </FormControl>

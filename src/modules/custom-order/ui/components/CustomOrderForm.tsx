@@ -18,17 +18,20 @@ import { PaymentPreference } from "./PaymentPreference";
 import { Loader2, PartyPopper } from "lucide-react";
 
 export function CustomOrderForm() {
-  const { user, isVerified, setUser, setVerified } = useUserStore();
+  const { user, isVerified, accessToken, setUser, setVerified } = useUserStore();
   const toast = useToast();
   const [step, setStep] = useState<1 | 2>(1);
   const [isHydrated, setIsVerifiedHydrated] = useState(false);
 
   useEffect(() => {
     setIsVerifiedHydrated(true);
-    if (isVerified && user) {
+    // Only proceed to step 2 if we have a user, it's verified AND we have an access token
+    if (isVerified && user && accessToken) {
       setStep(2);
+    } else {
+      setStep(1);
     }
-  }, [isVerified, user]);
+  }, [isVerified, user, accessToken]);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
