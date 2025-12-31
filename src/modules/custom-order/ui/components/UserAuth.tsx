@@ -11,9 +11,10 @@ import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp
 
 // Schema for User Details
 const userSchema = z.object({
-  name: z.string().min(2, "Name is required"),
+  firstName: z.string().min(2, "First name is required"),
+  lastName: z.string().min(1, "Last name is required"),
   email: z.string().email("Invalid email address"),
-  phone: z.string().min(10, "Phone number must be at least 10 digits"),
+  phone: z.string().regex(/^\d{10}$/, "Phone number must be exactly 10 digits"),
 });
 
 // Schema for OTP
@@ -36,7 +37,8 @@ export function UserAuth({ onVerified }: UserAuthProps) {
   const userForm = useForm<UserFormValues>({
     resolver: zodResolver(userSchema),
     defaultValues: {
-      name: "",
+      firstName: "",
+      lastName: "",
       email: "",
       phone: "",
     },
@@ -83,19 +85,34 @@ export function UserAuth({ onVerified }: UserAuthProps) {
         <CardContent className="p-4 sm:p-6">
           <Form {...userForm}>
             <form onSubmit={userForm.handleSubmit(onUserSubmit)} className="space-y-6">
-              <FormField
-                control={userForm.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Full Name</FormLabel>
-                    <FormControl>
-                      <Input placeholder="John Doe" {...field} className="h-12" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={userForm.control}
+                  name="firstName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>First Name</FormLabel>
+                      <FormControl>
+                        <Input placeholder="John" {...field} className="h-12" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={userForm.control}
+                  name="lastName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Last Name</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Doe" {...field} className="h-12" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
               <FormField
                 control={userForm.control}
                 name="email"
@@ -116,7 +133,21 @@ export function UserAuth({ onVerified }: UserAuthProps) {
                   <FormItem>
                     <FormLabel>Phone Number</FormLabel>
                     <FormControl>
-                      <Input placeholder="+1 234 567 890" type="tel" {...field} className="h-12" />
+                      <div className="relative">
+                        <div className="absolute left-0 top-0 h-12 w-12 flex items-center justify-center border-r bg-muted rounded-l-md text-sm font-medium">
+                          +91
+                        </div>
+                        <Input
+                          placeholder="9876543210"
+                          type="text"
+                          {...field}
+                          className="h-12 pl-14"
+                          onChange={(e) => {
+                            const val = e.target.value.replace(/\D/g, '').slice(0, 10);
+                            field.onChange(val);
+                          }}
+                        />
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>

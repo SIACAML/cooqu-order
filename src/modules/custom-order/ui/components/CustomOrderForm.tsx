@@ -86,7 +86,7 @@ export function CustomOrderForm() {
           <div className="space-y-2">
             <h2 className="text-3xl font-bold text-green-800">Request Sent Successfully!</h2>
             <div className="text-green-700 font-medium">
-              Thanks {user?.name}, we've received your request!
+              Thanks {user?.firstName} {user?.lastName}, we've received your request!
             </div>
           </div>
 
@@ -159,7 +159,7 @@ export function CustomOrderForm() {
         <div className="space-y-2">
           <h1 className="text-3xl font-bold tracking-tight text-primary">Custom Food Order</h1>
           <p className="text-muted-foreground">
-            Ordering as <span className="font-semibold text-foreground">{user?.name}</span> ({user?.phone})
+            Ordering as <span className="font-semibold text-foreground">{user?.firstName} {user?.lastName}</span> ({user?.phone})
           </p>
         </div>
 
