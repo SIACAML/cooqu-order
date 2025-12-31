@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { Link } from "@lexz451/next-nprogress";
 import { Button } from "@/components/ui/button";
 import { Smartphone, Download, CheckCircle2 } from "lucide-react";
 

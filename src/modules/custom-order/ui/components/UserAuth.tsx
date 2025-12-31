@@ -9,6 +9,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDes
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
+import { useToast } from "@/hooks/use-toast";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 
 // Schema for User Details
@@ -37,6 +38,7 @@ export function UserAuth({ onVerified }: UserAuthProps) {
   const [step, setStep] = useState<"details" | "otp">("details");
   const [isLoading, setIsLoading] = useState(false);
   const [userData, setUserData] = useState<UserFormValues | null>(null);
+  const toast = useToast();
 
   // Form 1: User Details
   const userForm = useForm<UserFormValues>({
@@ -70,11 +72,13 @@ export function UserAuth({ onVerified }: UserAuthProps) {
 
     if (data.otp === "1234") {
       setIsLoading(false);
+      toast.success("Phone verified successfully!");
       if (userData) {
         onVerified(userData);
       }
     } else {
       setIsLoading(false);
+      toast.error("Invalid OTP code. Please try again.");
       otpForm.setError("otp", { message: "Invalid OTP. Try 1234" });
     }
   };

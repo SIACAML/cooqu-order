@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@lexz451/next-nprogress";
 import { UtensilsCrossed, Facebook, Instagram, Twitter, Mail, Phone, MapPin } from "lucide-react";
 
 export function Footer() {

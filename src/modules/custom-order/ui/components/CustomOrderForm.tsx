@@ -12,12 +12,14 @@ import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useUserStore } from "../../store/userStore";
+import { useToast } from "@/hooks/use-toast";
 
 import { PaymentPreference } from "./PaymentPreference";
 import { Loader2, PartyPopper } from "lucide-react";
 
 export function CustomOrderForm() {
   const { user, isVerified, setUser, setVerified } = useUserStore();
+  const toast = useToast();
   const [step, setStep] = useState<1 | 2>(1);
   const [isHydrated, setIsVerifiedHydrated] = useState(false);
 
@@ -48,7 +50,8 @@ export function CustomOrderForm() {
   const onSubmit = async (data: FormValues) => {
     console.log("Full Order Submission:", { user: user, order: data });
     // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+    toast.success("Hooray! Your order request has been sent successfully.");
     setSuccess(true);
   };
 
@@ -130,12 +133,12 @@ export function CustomOrderForm() {
 
           <div className="text-sm text-muted-foreground pt-4 border-t border-green-200 w-full">
             <p className="font-medium mb-2">Need help? Contact Support:</p>
-            <div className="flex justify-center gap-4">
-              <a href="mailto:support@customorder.com" className="flex items-center gap-1 text-green-700 hover:underline">
-                📧 support@customorder.com
+            <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
+              <a href="mailto:admin@cooqu.co.in" className="flex items-center gap-1 text-green-700 hover:underline">
+                📧 admin@cooqu.co.in
               </a>
-              <a href="https://wa.me/1234567890" target="_blank" className="flex items-center gap-1 text-green-700 hover:underline">
-                💬 WhatsApp Team
+              <a href="https://wa.me/916353593662" target="_blank" className="flex items-center gap-1 text-green-700 hover:underline">
+                💬 +91 6353 593 662
               </a>
             </div>
           </div>

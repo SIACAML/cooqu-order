@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
+import { Link } from "@lexz451/next-nprogress";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, UtensilsCrossed } from "lucide-react";
 

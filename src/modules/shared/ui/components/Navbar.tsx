@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Link from "next/link";
+import { Link } from "@lexz451/next-nprogress";
 import { Button } from "@/components/ui/button";
 import { UtensilsCrossed, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
