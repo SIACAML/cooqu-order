@@ -42,7 +42,7 @@ export function Navbar() {
                         {["Services", "How it Works", "About"].map((item) => (
                             <Link
                                 key={item}
-                                href={`#${item.toLowerCase().replace(" ", "-")}`}
+                                href={`/#${item.toLowerCase().replace(" ", "-")}`}
                                 className={cn(
                                     "text-sm font-medium hover:text-primary transition-colors",
                                     isScrolled ? "text-zinc-600" : "text-zinc-200"
@@ -75,7 +75,7 @@ export function Navbar() {
                     {["Services", "How it Works", "About"].map((item) => (
                         <Link
                             key={item}
-                            href={`#${item.toLowerCase().replace(" ", "-")}`}
+                            href={`/#${item.toLowerCase().replace(" ", "-")}`}
                             className="block text-zinc-600 font-medium px-4 py-2 hover:bg-muted rounded-lg"
                             onClick={() => setIsMobileMenuOpen(false)}
                         >

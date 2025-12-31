@@ -138,7 +138,7 @@ export function UserAuth({ onVerified }: UserAuthProps) {
                           +91
                         </div>
                         <Input
-                          placeholder="9876543210"
+                          placeholder="98XXXXXX10"
                           type="text"
                           {...field}
                           className="h-12 pl-14"
