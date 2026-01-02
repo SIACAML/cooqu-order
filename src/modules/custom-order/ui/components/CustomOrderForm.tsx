@@ -181,12 +181,16 @@ export function CustomOrderForm() {
                   <h4 className="font-semibold text-foreground">Download the App</h4>
                   <p className="text-sm text-muted-foreground">You will receive quotes <b>only on our mobile app</b>. Download it to track your request.</p>
                   <div className="flex flex-wrap gap-2 mt-2">
-                    <Button size="sm" variant="outline" className="h-8 text-[10px] sm:text-xs border-primary text-primary hover:bg-primary/5 px-2 sm:px-3">
-                      Download for Android
-                    </Button>
-                    <Button size="sm" variant="outline" className="h-8 text-[10px] sm:text-xs border-primary text-primary hover:bg-primary/5 px-2 sm:px-3">
-                      Download for iOS
-                    </Button>
+                    <a href="https://play.google.com/store/apps/details?id=com.cooqu" target="_blank" rel="noopener noreferrer">
+                      <Button size="sm" variant="outline" className="h-8 text-[10px] sm:text-xs border-primary text-primary hover:bg-primary/5 px-2 sm:px-3">
+                        Download for Android
+                      </Button>
+                    </a>
+                    <a href="https://apps.apple.com/us/app/cooqu/id6444360176" target="_blank" rel="noopener noreferrer">
+                      <Button size="sm" variant="outline" className="h-8 text-[10px] sm:text-xs border-primary text-primary hover:bg-primary/5 px-2 sm:px-3">
+                        Download for iOS
+                      </Button>
+                    </a>
                   </div>
                 </div>
               </div>
