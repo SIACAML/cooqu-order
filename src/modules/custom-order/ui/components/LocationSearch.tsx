@@ -70,6 +70,7 @@ export function LocationSearch() {
 
   // Local state for the confirmation form
   const [tempAddress, setTempAddress] = useState<any>(null);
+  const [lockedFields, setLockedFields] = useState<string[]>([]);
 
   const {
     ready,
@@ -142,6 +143,12 @@ export function LocationSearch() {
           pincode = component.long_name;
         }
       });
+
+      const locked: string[] = [];
+      if (city) locked.push("city");
+      if (state) locked.push("state");
+      if (pincode) locked.push("pincode");
+      setLockedFields(locked);
 
       // Set temp address for confirmation view
       setTempAddress({
@@ -231,6 +238,12 @@ export function LocationSearch() {
             pincode = component.long_name;
           }
         });
+
+        const locked: string[] = [];
+        if (city) locked.push("city");
+        if (state) locked.push("state");
+        if (pincode) locked.push("pincode");
+        setLockedFields(locked);
 
         // Update temp address with new coordinates and address, but keep user-entered houseNo and landmark
         setTempAddress({
@@ -327,16 +340,14 @@ export function LocationSearch() {
               />
             </div>
             <div className="space-y-1">
-              <Label htmlFor="area" className="flex items-center gap-1">
-                Area {tempAddress.area && <span className="text-xs text-muted-foreground">🔒</span>}
+              <Label htmlFor="area">
+                Area
               </Label>
               <Input
                 id="area"
                 value={tempAddress.area}
-                readOnly={!!tempAddress.area} // Only lock if Google provided value
-                onChange={(e) => !tempAddress.area && setTempAddress({ ...tempAddress, area: e.target.value })}
-                className={tempAddress.area ? "bg-muted cursor-not-allowed" : ""}
-                placeholder={tempAddress.area ? "From Google Maps" : "Enter area"}
+                onChange={(e) => setTempAddress({ ...tempAddress, area: e.target.value })}
+                placeholder="Enter area"
               />
             </div>
           </div>
@@ -344,41 +355,41 @@ export function LocationSearch() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             <div className="space-y-1">
               <Label htmlFor="city" className="flex items-center gap-1">
-                City {tempAddress.city && <span className="text-xs text-muted-foreground">🔒</span>}
+                City {lockedFields.includes("city") && <span className="text-xs text-muted-foreground">🔒</span>}
               </Label>
               <Input
                 id="city"
                 value={tempAddress.city}
-                readOnly={!!tempAddress.city}
-                onChange={(e) => !tempAddress.city && setTempAddress({ ...tempAddress, city: e.target.value })}
-                className={tempAddress.city ? "bg-muted cursor-not-allowed" : ""}
-                placeholder={tempAddress.city ? "From Google Maps" : "Enter city"}
+                readOnly={lockedFields.includes("city")}
+                onChange={(e) => setTempAddress({ ...tempAddress, city: e.target.value })}
+                className={lockedFields.includes("city") ? "bg-muted cursor-not-allowed" : ""}
+                placeholder="Enter city"
               />
             </div>
             <div className="space-y-1">
               <Label htmlFor="state" className="flex items-center gap-1">
-                State {tempAddress.state && <span className="text-xs text-muted-foreground">🔒</span>}
+                State {lockedFields.includes("state") && <span className="text-xs text-muted-foreground">🔒</span>}
               </Label>
               <Input
                 id="state"
                 value={tempAddress.state}
-                readOnly={!!tempAddress.state}
-                onChange={(e) => !tempAddress.state && setTempAddress({ ...tempAddress, state: e.target.value })}
-                className={tempAddress.state ? "bg-muted cursor-not-allowed" : ""}
-                placeholder={tempAddress.state ? "From Google Maps" : "Enter state"}
+                readOnly={lockedFields.includes("state")}
+                onChange={(e) => setTempAddress({ ...tempAddress, state: e.target.value })}
+                className={lockedFields.includes("state") ? "bg-muted cursor-not-allowed" : ""}
+                placeholder="Enter state"
               />
             </div>
             <div className="space-y-1">
               <Label htmlFor="pincode" className="flex items-center gap-1">
-                Pincode {tempAddress.pincode && <span className="text-xs text-muted-foreground">🔒</span>}
+                Pincode {lockedFields.includes("pincode") && <span className="text-xs text-muted-foreground">🔒</span>}
               </Label>
               <Input
                 id="pincode"
                 value={tempAddress.pincode}
-                readOnly={!!tempAddress.pincode}
-                onChange={(e) => !tempAddress.pincode && setTempAddress({ ...tempAddress, pincode: e.target.value })}
-                className={tempAddress.pincode ? "bg-muted cursor-not-allowed" : ""}
-                placeholder={tempAddress.pincode ? "From Google Maps" : "Enter pincode"}
+                readOnly={lockedFields.includes("pincode")}
+                onChange={(e) => setTempAddress({ ...tempAddress, pincode: e.target.value })}
+                className={lockedFields.includes("pincode") ? "bg-muted cursor-not-allowed" : ""}
+                placeholder="Enter pincode"
               />
             </div>
           </div>

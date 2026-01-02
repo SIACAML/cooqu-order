@@ -1,0 +1,19 @@
+import { useMutation } from "@tanstack/react-query";
+import api from "@/lib/api";
+import { useUserStore } from "../store/userStore";
+
+export function useOrderMutation() {
+    const { accessToken } = useUserStore();
+
+    return useMutation({
+        mutationFn: async (formData: FormData) => {
+            const response = await api.post("order/form-custom-order-create", formData, {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                    "Content-Type": "multipart/form-data",
+                },
+            });
+            return response.data;
+        },
+    });
+}

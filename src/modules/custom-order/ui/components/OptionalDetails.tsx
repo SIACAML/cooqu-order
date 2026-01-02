@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { useFormContext } from "react-hook-form";
-import { FormValues, CUISINES, EVENT_STYLES } from "../../schema";
+import { FormValues, EVENT_STYLES } from "../../schema";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -15,18 +15,9 @@ export function OptionalDetails() {
     const { control, watch, setValue } = useFormContext<FormValues>();
     const [isOpen, setIsOpen] = useState(false);
 
+    const selectedCuisine = watch("cuisine");
     const category = watch("category");
     const orderType = watch("orderType");
-    const selectedCuisines = watch("cuisines") || [];
-
-    const toggleCuisine = (cuisine: string) => {
-        const current = selectedCuisines;
-        if (current.includes(cuisine)) {
-            setValue("cuisines", current.filter(c => c !== cuisine));
-        } else {
-            setValue("cuisines", [...current, cuisine]);
-        }
-    };
 
     return (
         <Card className="overflow-hidden border-dashed border-none sm:border shadow-none sm:shadow-sm bg-transparent sm:bg-card">
@@ -120,39 +111,6 @@ export function OptionalDetails() {
                         }}
                     />
 
-                    {/* Cuisines - Multi-select Chips */}
-                    <FormField
-                        control={control}
-                        name="cuisines"
-                        render={() => (
-                            <FormItem>
-                                <FormLabel>Cuisines</FormLabel>
-                                <FormControl>
-                                    <div className="flex flex-wrap gap-2">
-                                        {CUISINES.map((cuisine) => {
-                                            const isSelected = selectedCuisines.includes(cuisine);
-                                            return (
-                                                <Button
-                                                    key={cuisine}
-                                                    type="button"
-                                                    variant={isSelected ? "default" : "outline"}
-                                                    size="sm"
-                                                    onClick={() => toggleCuisine(cuisine)}
-                                                    className={cn(
-                                                        "rounded-full transition-all",
-                                                        isSelected && "ring-2 ring-offset-1 ring-primary"
-                                                    )}
-                                                >
-                                                    {cuisine}
-                                                </Button>
-                                            );
-                                        })}
-                                    </div>
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
 
                     {/* Cooking Instructions */}
                     <FormField

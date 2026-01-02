@@ -1,5 +1,5 @@
 import { useFormContext } from "react-hook-form";
-import { FormValues, ORDER_TYPES, CATEGORIES } from "../../schema";
+import { FormValues, ORDER_TYPES, CATEGORIES, CUISINES } from "../../schema";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
@@ -36,9 +36,17 @@ export function OrderBasics() {
                     type="button"
                     onClick={() => {
                       const current = field.value || [];
-                      const newValue = current.includes(type)
-                        ? current.filter((v: string) => v !== type)
-                        : [...current, type];
+                      let newValue;
+                      if (current.includes(type)) {
+                        // Don't allow unselecting if it's the only one left
+                        if (current.length > 1) {
+                          newValue = current.filter((v: string) => v !== type);
+                        } else {
+                          return; // Do nothing
+                        }
+                      } else {
+                        newValue = [...current, type];
+                      }
                       field.onChange(newValue);
                     }}
                     className={cn(
@@ -85,6 +93,40 @@ export function OrderBasics() {
                     </button>
                   ))}
                 </div>
+              </div>
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      {/* Cuisine - Single-select Chips */}
+      <FormField
+        control={control}
+        name="cuisine"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Cuisines (Select one)</FormLabel>
+            <FormControl>
+              <div className="flex flex-wrap gap-2">
+                {CUISINES.map((cuisine) => {
+                  const isSelected = field.value === cuisine;
+                  return (
+                    <Button
+                      key={cuisine}
+                      type="button"
+                      variant={isSelected ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => field.onChange(cuisine)}
+                      className={cn(
+                        "rounded-full transition-all",
+                        isSelected && "ring-2 ring-offset-1 ring-primary"
+                      )}
+                    >
+                      {cuisine}
+                    </Button>
+                  );
+                })}
               </div>
             </FormControl>
             <FormMessage />

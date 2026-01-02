@@ -1,10 +1,20 @@
 import { z } from "zod";
 
 export const ORDER_TYPES = ["Delivery", "Pickup", "Dine-in"] as const;
-export const CATEGORIES = ["Dish", "Catering", "Snack", "Bakery", "Sweet-Dish"] as const;
+export const CATEGORIES = ["Dish", "Catering", "Snack", "Bakery", "Sweet Dish"] as const;
 export const DIET_TYPES = ["Veg", "Non-Veg", "Vegan"] as const;
 export const UNITS = ["kg", "plate", "pcs", "ltr"] as const;
-export const CUISINES = ["Italian", "Indian", "Chinese", "Mexican", "Continental", "Thai"] as const;
+export const CUISINES = [
+  "Breakfast",
+  "Indian",
+  "Chinese",
+  "Punjabi",
+  "Gujarati Special",
+  "South Indian",
+  "Fast Food",
+  "North Indian",
+  "Italian"
+] as const;
 export const EVENT_STYLES = ["Buffet", "Sit-down", "Cocktail", "High Tea"] as const;
 
 // Base schema for required fields
@@ -23,8 +33,8 @@ const baseSchema = z.object({
   guestCount: z.number().min(1, "At least 1 guest required"),
 
   // Optional fields
-  photos: z.any().optional(), // File handling is complex, keeping simple for now
-  cuisines: z.array(z.string()).optional(),
+  photos: z.any().optional(),
+  cuisine: z.string().min(1, "Please select at least one cuisine"),
   cookingInstructions: z.string().optional(),
   // Payment Preference
   paymentPreference: z.enum(["COD", "Online"]).optional(),
@@ -77,8 +87,8 @@ export const formSchema = baseSchema
       }
     }
 
-    // 3. Bakery/Sweet-Dish Validation
-    if (["Bakery", "Sweet-Dish"].includes(data.category)) {
+    // 3. Bakery/Sweet Dish Validation
+    if (["Bakery", "Sweet Dish"].includes(data.category)) {
       // Size is optional in the prompt ("Visible ONLY for...", usually implies strictly relevant, but prompt says "Optional Details" section.
       // The prompt says "Size: Text Input (Visible ONLY for Bakery/Sweet-Dish)".
       // It is in the "Optional Details" section, so it shouldn't be required.
