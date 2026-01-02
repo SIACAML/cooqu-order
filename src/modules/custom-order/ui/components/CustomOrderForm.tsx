@@ -16,7 +16,6 @@ import { useToast } from "@/hooks/use-toast";
 import { useOrderMutation } from "../../hooks/useOrderMutation";
 import { format } from "date-fns";
 
-import { PaymentPreference } from "./PaymentPreference";
 import { Loader2, PartyPopper } from "lucide-react";
 
 export function CustomOrderForm() {
@@ -51,7 +50,6 @@ export function CustomOrderForm() {
       quantity: 1,
       unit: "plate",
       guestCount: 1,
-      paymentPreference: "Online"
     },
     mode: "onTouched",
   });
@@ -278,8 +276,6 @@ export function CustomOrderForm() {
         {/* Section 2: Optional Details */}
         <OptionalDetails />
 
-        {/* Section 3: Payment Preference */}
-        <PaymentPreference />
 
         <div className="pt-4 sticky bottom-0 z-20 mx-auto w-full max-w-4xl bg-background/80 backdrop-blur-sm sm:bg-transparent pb-4 sm:static sm:z-auto space-y-2 border-t sm:border-none">
           {/* Error Message for Validation - Visible only when trying to submit invalid form */}
