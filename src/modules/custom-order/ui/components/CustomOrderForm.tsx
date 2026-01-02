@@ -150,8 +150,8 @@ export function CustomOrderForm() {
 
   if (success) {
     return (
-      <Card className="max-w-2xl mx-auto mt-8 border-primary/20 bg-primary/5 shadow-lg">
-        <CardContent className="flex flex-col items-center justify-center p-8 text-center space-y-6">
+      <Card className="max-w-2xl mx-auto mt-4 sm:mt-8 border-primary/20 bg-primary/5 shadow-lg">
+        <CardContent className="flex flex-col items-center justify-center p-4 sm:p-8 text-center space-y-6">
           <div className="h-20 w-20 bg-primary/10 text-primary rounded-full flex items-center justify-center mb-2 animate-in zoom-in spin-in-180 duration-500">
             <PartyPopper className="h-10 w-10" />
           </div>
@@ -163,7 +163,7 @@ export function CustomOrderForm() {
             </div>
           </div>
 
-          <div className="w-full bg-card/60 p-6 rounded-xl border border-primary/10 text-left space-y-4">
+          <div className="w-full bg-card/60 p-4 sm:p-6 rounded-xl border border-primary/10 text-left space-y-4">
             <h3 className="font-semibold text-lg text-foreground border-b border-primary/10 pb-2">What happens next?</h3>
 
             <div className="space-y-4">
@@ -180,11 +180,11 @@ export function CustomOrderForm() {
                 <div>
                   <h4 className="font-semibold text-foreground">Download the App</h4>
                   <p className="text-sm text-muted-foreground">You will receive quotes <b>only on our mobile app</b>. Download it to track your request.</p>
-                  <div className="flex gap-2 mt-2">
-                    <Button size="sm" variant="outline" className="h-8 text-xs border-primary text-primary hover:bg-primary/5">
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    <Button size="sm" variant="outline" className="h-8 text-[10px] sm:text-xs border-primary text-primary hover:bg-primary/5 px-2 sm:px-3">
                       Download for Android
                     </Button>
-                    <Button size="sm" variant="outline" className="h-8 text-xs border-primary text-primary hover:bg-primary/5">
+                    <Button size="sm" variant="outline" className="h-8 text-[10px] sm:text-xs border-primary text-primary hover:bg-primary/5 px-2 sm:px-3">
                       Download for iOS
                     </Button>
                   </div>
