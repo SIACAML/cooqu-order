@@ -1,5 +1,6 @@
 import { Link } from "@lexz451/next-nprogress";
-import { UtensilsCrossed, Facebook, Instagram, Twitter, Mail, Phone, MapPin } from "lucide-react";
+import { Facebook, Instagram, Youtube, Mail, Phone, MapPin } from "lucide-react";
+import Image from "next/image";
 
 export function Footer() {
     return (
@@ -9,18 +10,26 @@ export function Footer() {
                     {/* Brand Info */}
                     <div className="space-y-6">
                         <Link href="/" className="flex items-center gap-2 group">
-                            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center group-hover:rotate-12 transition-transform">
-                                <UtensilsCrossed className="w-6 h-6 text-white" />
+                            <div className="relative h-10 w-28">
+                                <Image
+                                    src="/images/white_logo.png"
+                                    alt="CooQu Logo"
+                                    fill
+                                    className="object-contain"
+                                />
                             </div>
-                            <span className="text-2xl font-bold tracking-tight">CooQu</span>
                         </Link>
                         <p className="text-zinc-400 leading-relaxed max-w-xs">
                             Empowering home cooks to share their passion and providing you the
                             most authentic homemade food experiences.
                         </p>
                         <div className="flex gap-4">
-                            {[Facebook, Instagram, Twitter].map((Icon, i) => (
-                                <Link key={i} href="#" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-primary hover:text-white transition-colors">
+                            {[
+                                { Icon: Facebook, href: "https://www.facebook.com/p/CooQu-India-100082511023670/" },
+                                { Icon: Instagram, href: "https://www.instagram.com/cooquapp/" },
+                                { Icon: Youtube, href: "https://www.youtube.com/@cooquapp" }
+                            ].map(({ Icon, href }, i) => (
+                                <Link key={i} href={href} target="_blank" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-primary hover:text-white transition-colors">
                                     <Icon className="w-5 h-5" />
                                 </Link>
                             ))}
@@ -33,6 +42,7 @@ export function Footer() {
                         <ul className="space-y-4 text-zinc-400">
                             <li><Link href="/" className="hover:text-primary transition-colors">Home</Link></li>
                             <li><Link href="/#features" className="hover:text-primary transition-colors">Services</Link></li>
+                            <li><Link href="/#how-it-works" className="hover:text-primary transition-colors">How it Works</Link></li>
                             <li><Link href="/custom-order" className="hover:text-primary transition-colors">Place Order</Link></li>
                             <li><Link href="/contact" className="hover:text-primary transition-colors">Contact Us</Link></li>
                         </ul>

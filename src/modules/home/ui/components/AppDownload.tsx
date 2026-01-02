@@ -5,7 +5,7 @@ import { Smartphone, Download, CheckCircle2 } from "lucide-react";
 
 export function AppDownload() {
     return (
-        <section className="py-24 overflow-hidden bg-primary/5">
+        <section id="app-download" className="py-24 overflow-hidden bg-primary/5">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="bg-primary rounded-[32px] overflow-hidden relative shadow-2xl shadow-primary/20">
                     <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10" />
@@ -42,12 +42,16 @@ export function AppDownload() {
                             </div>
 
                             <div className="flex flex-wrap gap-4 pt-4">
-                                <Button size="lg" className="bg-zinc-900 hover:bg-black text-white px-8 h-14 rounded-xl border-t border-white/10">
-                                    <Download className="mr-2 h-5 w-5" /> Google Play
-                                </Button>
-                                <Button size="lg" className="bg-zinc-900 hover:bg-black text-white px-8 h-14 rounded-xl border-t border-white/10">
-                                    <Smartphone className="mr-2 h-5 w-5" /> App Store
-                                </Button>
+                                <a href="https://play.google.com/store/apps/details?id=com.cooqu" target="_blank" rel="noopener noreferrer">
+                                    <Button size="lg" className="bg-zinc-900 hover:bg-black text-white px-8 h-14 rounded-xl border-t border-white/10">
+                                        <Download className="mr-2 h-5 w-5" /> Google Play
+                                    </Button>
+                                </a>
+                                <a href="https://apps.apple.com/us/app/cooqu/id6444360176" target="_blank" rel="noopener noreferrer">
+                                    <Button size="lg" className="bg-zinc-900 hover:bg-black text-white px-8 h-14 rounded-xl border-t border-white/10">
+                                        <Smartphone className="mr-2 h-5 w-5" /> App Store
+                                    </Button>
+                                </a>
                             </div>
                         </div>
 

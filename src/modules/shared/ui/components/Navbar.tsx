@@ -3,8 +3,9 @@
 import { useState, useEffect } from "react";
 import { Link } from "@lexz451/next-nprogress";
 import { Button } from "@/components/ui/button";
-import { UtensilsCrossed, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 
 export function Navbar() {
     const [isScrolled, setIsScrolled] = useState(false);
@@ -28,27 +29,33 @@ export function Navbar() {
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between">
                     <Link href="/" className="flex items-center gap-2 group">
-                        <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center group-hover:rotate-12 transition-transform shadow-lg shadow-primary/20">
-                            <UtensilsCrossed className="w-6 h-6 text-white" />
+                        <div className="relative h-10 w-28 transition-transform group-hover:scale-105 duration-300">
+                            <Image
+                                src={isScrolled ? "/images/logo.png" : "/images/white_logo.png"}
+                                alt="CooQu Logo"
+                                fill
+                                className="object-contain"
+                                priority
+                            />
                         </div>
-                        <span className={cn(
-                            "text-2xl font-bold tracking-tight transition-colors",
-                            isScrolled ? "text-zinc-900" : "text-white"
-                        )}>CooQu</span>
                     </Link>
 
                     {/* Desktop Nav */}
                     <div className="hidden md:flex items-center gap-10">
-                        {["Services", "How it Works", "About"].map((item) => (
+                        {[
+                            { name: "Services", href: "/#features" },
+                            { name: "How it Works", href: "/#how-it-works" },
+                            { name: "Get App", href: "/#app-download" },
+                        ].map((item) => (
                             <Link
-                                key={item}
-                                href={`/#${item.toLowerCase().replace(" ", "-")}`}
+                                key={item.name}
+                                href={item.href}
                                 className={cn(
                                     "text-sm font-medium hover:text-primary transition-colors",
                                     isScrolled ? "text-zinc-600" : "text-zinc-200"
                                 )}
                             >
-                                {item}
+                                {item.name}
                             </Link>
                         ))}
                     </div>
@@ -72,14 +79,18 @@ export function Navbar() {
             {/* Mobile Menu */}
             {isMobileMenuOpen && (
                 <div className="md:hidden absolute top-full left-0 right-0 bg-white border-b border-zinc-200 p-4 space-y-4 animate-in slide-in-from-top-4">
-                    {["Services", "How it Works", "About"].map((item) => (
+                    {[
+                        { name: "Services", href: "/#features" },
+                        { name: "How it Works", href: "/#how-it-works" },
+                        { name: "Get App", href: "/#app-download" },
+                    ].map((item) => (
                         <Link
-                            key={item}
-                            href={`/#${item.toLowerCase().replace(" ", "-")}`}
+                            key={item.name}
+                            href={item.href}
                             className="block text-zinc-600 font-medium px-4 py-2 hover:bg-muted rounded-lg"
                             onClick={() => setIsMobileMenuOpen(false)}
                         >
-                            {item}
+                            {item.name}
                         </Link>
                     ))}
                     <Button asChild className="w-full rounded-xl" onClick={() => setIsMobileMenuOpen(false)}>

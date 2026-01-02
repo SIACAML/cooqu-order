@@ -3,11 +3,11 @@
 import Image from "next/image";
 import { Link } from "@lexz451/next-nprogress";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, UtensilsCrossed } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 export function Hero() {
     return (
-        <section className="relative min-h-[90vh] flex items-center pt-20 overflow-hidden">
+        <section id="home" className="relative min-h-[90vh] flex items-center pt-20 overflow-hidden">
             {/* Background Image with Overlay */}
             <div className="absolute inset-0 z-0">
                 <Image
@@ -22,9 +22,16 @@ export function Hero() {
 
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                 <div className="max-w-2xl text-white space-y-8 animate-in fade-in slide-in-from-left-8 duration-1000">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/20 border border-primary/30 backdrop-blur-md text-primary-foreground text-sm font-medium">
-                        <UtensilsCrossed className="w-4 h-4 text-primary" />
-                        <span>Discover Authentic Home Cooking</span>
+                    <div className="inline-flex items-center gap-3 px-4 py-1.5 rounded-full bg-white/10 border border-white/10 backdrop-blur-md text-white text-sm font-medium">
+                        <div className="relative w-16 h-4">
+                            <Image
+                                src="/images/white_logo.png"
+                                alt="CooQu"
+                                fill
+                                className="object-contain"
+                            />
+                        </div>
+                        <span className="border-l border-white/20 pl-3">Discover Authentic Home Cooking</span>
                     </div>
 
                     <h1 className="text-5xl md:text-7xl font-bold tracking-tight leading-[1.1]">
