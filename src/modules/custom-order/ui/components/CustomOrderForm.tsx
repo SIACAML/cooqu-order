@@ -110,8 +110,8 @@ export function CustomOrderForm() {
 
       // Files
       if (values.photos && Array.isArray(values.photos)) {
-        values.photos.forEach((file: File) => {
-          formData.append("file[]", file);
+        values.photos.forEach((file: File, index: number) => {
+          formData.append(`Order[file][${index}]`, file);
         });
       }
 
