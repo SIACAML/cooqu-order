@@ -3,7 +3,7 @@ import { z } from "zod";
 export const ORDER_TYPES = ["Delivery", "Pickup", "Dine-in"] as const;
 export const CATEGORIES = ["Dish", "Catering", "Snack", "Bakery", "Sweet Dish"] as const;
 export const DIET_TYPES = ["Veg", "Non-Veg", "Vegan"] as const;
-export const UNITS = ["kg", "plate", "pcs", "ltr"] as const;
+export const UNITS = ["kg", "plate", "pcs", "ltr","gm", "ml", "dozen"] as const;
 export const CUISINES = [
   "Breakfast",
   "Indian",
