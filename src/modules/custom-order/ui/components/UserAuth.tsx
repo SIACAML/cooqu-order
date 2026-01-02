@@ -208,7 +208,14 @@ export function UserAuth({ onVerified }: UserAuthProps) {
                 )}
               />
               <Button type="submit" className="w-full h-14 text-lg font-bold shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all rounded-xl" disabled={isLoading}>
-                {isLoading ? <Loader2 className="mr-2 h-6 w-6 animate-spin" /> : "Verify & Continue"}
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-7 w-7 animate-spin" strokeWidth={3} />
+                    Sending OTP...
+                  </>
+                ) : (
+                  "Verify & Continue"
+                )}
               </Button>
             </form>
           </Form>
@@ -260,7 +267,14 @@ export function UserAuth({ onVerified }: UserAuthProps) {
             />
             <div className="w-full space-y-4">
               <Button type="submit" className="w-full h-14 text-lg font-bold shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all rounded-xl" disabled={isLoading}>
-                {isLoading ? <Loader2 className="mr-2 h-6 w-6 animate-spin" /> : "Confirm OTP"}
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-7 w-7 animate-spin" strokeWidth={3} />
+                    Verifying OTP...
+                  </>
+                ) : (
+                  "Confirm OTP"
+                )}
               </Button>
               <Button variant="ghost" type="button" className="w-full h-12 text-zinc-500 hover:text-primary transition-colors" onClick={() => setStep("details")}>
                 Change Phone Number

@@ -5,7 +5,7 @@ export const useToast = () => {
         showToast.success(message, {
             duration: 4000,
             progress: true,
-            position: "bottom-center",
+            position: "top-center",
             transition: "fadeIn",
             icon: '',
             sound: true,
@@ -16,7 +16,7 @@ export const useToast = () => {
         showToast.error(message, {
             duration: 4000,
             progress: true,
-            position: "bottom-center",
+            position: "top-center",
             transition: "fadeIn",
             icon: '',
             sound: true,
@@ -27,7 +27,7 @@ export const useToast = () => {
         showToast.info(message, {
             duration: 4000,
             progress: true,
-            position: "bottom-center",
+            position: "top-center",
             transition: "fadeIn",
             icon: '',
             sound: true,
