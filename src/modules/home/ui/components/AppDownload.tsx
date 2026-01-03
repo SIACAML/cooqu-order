@@ -49,7 +49,7 @@ export function AppDownload() {
                                             alt="Google Play"
                                             width={24}
                                             height={24}
-                                            className="w-6 h-6 invert"
+                                            className="w-6 h-6 "
                                         />
                                         <div className="flex flex-col items-start leading-none">
                                             <span className="text-[10px] uppercase font-semibold opacity-80">Get it on</span>
@@ -64,7 +64,7 @@ export function AppDownload() {
                                             alt="App Store"
                                             width={24}
                                             height={24}
-                                            className="w-6 h-6 invert"
+                                            className="w-6 h-6 "
                                         />
                                         <div className="flex flex-col items-start leading-none">
                                             <span className="text-[10px] opacity-80">Download on the</span>
