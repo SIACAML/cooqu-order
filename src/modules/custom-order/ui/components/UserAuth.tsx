@@ -201,7 +201,7 @@ export function UserAuth({ onVerified }: UserAuthProps) {
                         <Link href="/privacy-policy" className="text-primary hover:underline transition-all">Privacy Policy</Link>
                       </p>
                       <p className="text-xs text-zinc-500 leading-normal">
-                        By checking this box, you allow CooQu to create an account on your behalf and confirm that you have read and accepted our legal terms.
+                        By checking this box, you allow CooQu to create an account on CooQu mobile app on your behalf and confirm that you have read and accepted our legal terms.
                       </p>
                     </div>
                   </FormItem>
