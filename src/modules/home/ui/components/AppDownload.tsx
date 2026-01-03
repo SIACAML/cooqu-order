@@ -82,7 +82,7 @@ export function AppDownload() {
                                 <div className="w-64 h-[500px] bg-zinc-900 rounded-[40px] border-8 border-zinc-800 shadow-2xl relative overflow-hidden">
                                     <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-zinc-950 to-transparent z-20" />
                                     <Image
-                                        src="/images/app-mockup.jpeg"
+                                        src="/images/app-mockup.png"
                                         alt="CooQu App Mockup"
                                         fill
                                         className="object-cover z-10"
