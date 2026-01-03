@@ -76,18 +76,16 @@ export function AppDownload() {
                         </div>
 
                         {/* Right Mockup Decoration */}
-                        <div className="lg:w-2/5 p-8 lg:p-0 flex justify-center lg:justify-end relative h-64 lg:h-auto min-h-[400px]">
+                        <div className="lg:w-2/5 p-8 lg:p-0 flex justify-center lg:justify-end relative min-h-[400px] items-center">
                             <div className="absolute inset-0 bg-white/10 blur-3xl rounded-full" />
-                            <div className="relative z-10 translate-y-20 lg:translate-y-32 scale-110 lg:scale-125">
-                                <div className="w-64 h-[500px] bg-zinc-900 rounded-[40px] border-8 border-zinc-800 shadow-2xl relative overflow-hidden">
-                                    <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-zinc-950 to-transparent z-20" />
-                                    <Image
-                                        src="/images/app-mockup.png"
-                                        alt="CooQu App Mockup"
-                                        fill
-                                        className="object-cover z-10"
-                                    />
-                                </div>
+                            <div className="relative z-10 w-full max-w-[320px] aspect-[9/18]">
+                                <Image
+                                    src="/images/app-mockup.png"
+                                    alt="CooQu App Mockup"
+                                    fill
+                                    className="object-contain"
+                                    priority
+                                />
                             </div>
                         </div>
                     </div>

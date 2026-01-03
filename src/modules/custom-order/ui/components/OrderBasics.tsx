@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { FormValues, ORDER_TYPES, CATEGORIES, CUISINES } from "../../schema";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -12,6 +13,7 @@ import { LocationSearch } from "./LocationSearch";
 
 export function OrderBasics() {
   const { control, watch } = useFormContext<FormValues>();
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const orderType = watch("orderType");
   const category = watch("category");
 
@@ -142,7 +144,7 @@ export function OrderBasics() {
           render={({ field }) => (
             <FormItem className="flex flex-col">
               <FormLabel>Date</FormLabel>
-              <Popover>
+              <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
                 <PopoverTrigger asChild>
                   <FormControl>
                     <Button
@@ -165,7 +167,10 @@ export function OrderBasics() {
                   <Calendar
                     mode="single"
                     selected={field.value}
-                    onSelect={field.onChange}
+                    onSelect={(date) => {
+                      field.onChange(date);
+                      setIsCalendarOpen(false);
+                    }}
                     disabled={(date) => date < new Date()}
                     initialFocus
                   />
