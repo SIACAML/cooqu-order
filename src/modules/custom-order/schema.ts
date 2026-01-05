@@ -21,10 +21,18 @@ export const EVENT_STYLES = ["Buffet", "Sit-down", "Cocktail", "High Tea"] as co
 const baseSchema = z.object({
   orderType: z.array(z.enum(ORDER_TYPES)).min(1, "Select at least one order type"),
   category: z.enum(CATEGORIES),
-  date: z.date().refine((date) => date > new Date(), {
-    message: "Date must be in the future",
+  date: z.date({
+    message: "Please select a date for your order",
+  }).refine((date) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return date >= today;
+  }, {
+    message: "Date cannot be in the past",
   }),
-  time: z.string().min(1, "Please select a time"),
+  time: z.string({
+    message: "Please select a time",
+  }).min(1, "Please select a time"),
   itemName: z.string().min(2, "Item name is required"),
   dietType: z.enum(DIET_TYPES),
   quantity: z.number().min(1, "Quantity must be at least 1"),
@@ -68,7 +76,7 @@ export const formSchema = baseSchema
       if (!data.location || data.location.length < 5) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: "Delivery address is required",
+          message: "Please search and 'Confirm' your delivery location",
           path: ["location"],
         });
       }
@@ -79,17 +87,10 @@ export const formSchema = baseSchema
       if (!data.budget || data.budget <= 0) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: "Budget is required for catering",
+          message: "Please enter your budget for the catering event",
           path: ["budget"],
         });
       }
-    }
-
-    // 3. Bakery/Sweet Dish Validation
-    if (["Bakery", "Sweet Dish"].includes(data.category)) {
-      // Size is optional in the prompt ("Visible ONLY for...", usually implies strictly relevant, but prompt says "Optional Details" section.
-      // The prompt says "Size: Text Input (Visible ONLY for Bakery/Sweet-Dish)".
-      // It is in the "Optional Details" section, so it shouldn't be required.
     }
   });
 

@@ -24,6 +24,7 @@ export function CustomOrderForm() {
   const [step, setStep] = useState<1 | 2>(1);
   const [isHydrated, setIsVerifiedHydrated] = useState(false);
   const orderMutation = useOrderMutation();
+  const [pendingValues, setPendingValues] = useState<FormValues | null>(null);
 
   const handleLogout = () => {
     logout();
@@ -33,13 +34,14 @@ export function CustomOrderForm() {
 
   useEffect(() => {
     setIsVerifiedHydrated(true);
-    // Only proceed to step 2 if we have a user, it's verified AND we have an access token
-    if (isVerified && user && accessToken) {
-      setStep(2);
-    } else {
-      setStep(1);
+  }, []);
+
+  // Effect to handle submission after verification
+  useEffect(() => {
+    if (isVerified && accessToken && pendingValues && !orderMutation.isPending && !orderMutation.isSuccess && !orderMutation.isError) {
+      submitOrder(pendingValues);
     }
-  }, [isVerified, user, accessToken]);
+  }, [isVerified, accessToken, pendingValues, orderMutation.isPending, orderMutation.isSuccess, orderMutation.isError]);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -50,6 +52,11 @@ export function CustomOrderForm() {
       quantity: 1,
       unit: "plate",
       guestCount: 1,
+      date: new Date(new Date().setDate(new Date().getDate() + 1)), // Default to tomorrow's date
+      time: "12:00", // Default time
+      cuisine: "",
+      itemName: "",
+      description: "",
     },
     mode: "onTouched",
   });
@@ -57,7 +64,7 @@ export function CustomOrderForm() {
   const { handleSubmit, formState: { isSubmitting } } = form;
   const [success, setSuccess] = useState(false);
 
-  const onSubmit = async (values: FormValues) => {
+  const submitOrder = async (values: FormValues) => {
     try {
       const formData = new FormData();
 
@@ -116,34 +123,39 @@ export function CustomOrderForm() {
       await orderMutation.mutateAsync(formData);
 
       toast.success("Hooray! Your order request has been sent successfully.");
+      setPendingValues(null); // Clear on success
       setSuccess(true);
+      setStep(1); // Go back to step 1 for success view
     } catch (error: any) {
       console.error("Submission Error:", error);
       toast.error(error.response?.data?.message || "Failed to submit request. Please try again.");
+      setStep(1); // Return to form on error so user can retry or fix data
     }
+  };
+
+  const onSubmit = async (values: FormValues) => {
+    if (!isVerified || !accessToken) {
+      setPendingValues(values);
+      setStep(2);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    await submitOrder(values);
   };
 
   const handleAuthVerified = (userData: any) => {
     setUser(userData);
     setVerified(true);
-    setStep(2);
+    // The useEffect will handle the submission if pendingValues exists
+    if (!pendingValues) {
+      setStep(1);
+    }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   if (!isHydrated) {
     return null; // or a loading spinner
-  }
-
-  if (step === 1) {
-    return (
-      <div className="space-y-8 max-w-4xl mx-auto">
-        <div className="space-y-2 text-center sm:text-left">
-          <h1 className="text-3xl font-bold tracking-tight text-primary">Start Your Custom Order</h1>
-          <p className="text-muted-foreground">First, let's verify your details so we can reach you.</p>
-        </div>
-        <UserAuth onVerified={handleAuthVerified} />
-      </div>
-    );
   }
 
   if (success) {
@@ -236,6 +248,25 @@ export function CustomOrderForm() {
     )
   }
 
+  if (step === 2) {
+    return (
+      <div className="space-y-8 max-w-4xl mx-auto">
+        <div className="space-y-2 text-center sm:text-left">
+          <h1 className="text-3xl font-bold tracking-tight text-primary">Verify Your Details</h1>
+          <p className="text-muted-foreground">Almost there! We just need to verify your details to place the order.</p>
+        </div>
+        {orderMutation.isPending ? (
+          <div className="flex flex-col items-center justify-center py-12 space-y-4">
+            <Loader2 className="h-12 w-12 animate-spin text-primary" strokeWidth={3} />
+            <p className="text-lg font-medium text-primary">Placing your order request...</p>
+          </div>
+        ) : (
+          <UserAuth onVerified={handleAuthVerified} />
+        )}
+      </div>
+    );
+  }
+
   return (
     <Form {...form}>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 max-w-4xl mx-auto pb-24 px-4 sm:px-0">
@@ -243,19 +274,27 @@ export function CustomOrderForm() {
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div className="space-y-2">
             <h1 className="text-3xl font-bold tracking-tight text-primary">Custom Food Order</h1>
-            <p className="text-muted-foreground">
-              Ordering as <span className="font-semibold text-foreground">{user?.firstName} {user?.lastName}</span> ({user?.phone})
-            </p>
+            {isVerified && user ? (
+              <p className="text-muted-foreground">
+                Ordering as <span className="font-semibold text-foreground">{user?.firstName} {user?.lastName}</span> ({user?.phone})
+              </p>
+            ) : (
+              <p className="text-muted-foreground">
+                Describe your unique food craving, and we'll find the perfect cook for you!
+              </p>
+            )}
           </div>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={handleLogout}
-            className="w-fit text-xs h-8"
-          >
-            Change User
-          </Button>
+          {isVerified && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handleLogout}
+              className="w-fit text-xs h-8"
+            >
+              Change User
+            </Button>
+          )}
         </div>
 
         {/* Section 1: Required Details */}
@@ -280,20 +319,35 @@ export function CustomOrderForm() {
         <div className="pt-4 sticky bottom-0 z-20 mx-auto w-full max-w-4xl bg-background/80 backdrop-blur-sm sm:bg-transparent pb-4 sm:static sm:z-auto space-y-2 border-t sm:border-none">
           {/* Error Message for Validation - Visible only when trying to submit invalid form */}
           {form.formState.isSubmitted && !form.formState.isValid && (
-            <div className="bg-destructive/15 text-destructive text-[0.8rem] p-2 rounded-md border border-destructive/20 text-center animate-in fade-in slide-in-from-bottom-2 font-medium">
-              Please fill in all required details correctly to proceed.
+            <div className="bg-destructive/15 text-destructive text-[0.8rem] p-3 rounded-md border border-destructive/20 animate-in fade-in slide-in-from-bottom-2">
+              <p className="font-bold mb-1">Please fix the following to proceed:</p>
+              <ul className="list-disc list-inside text-left space-y-0.5">
+                {Object.entries(form.formState.errors).map(([key, error]: [string, any]) => {
+                  // Handle nested objects if necessary, but most of our schema is flat or custom handled
+                  const message = error?.message;
+                  if (message) return <li key={key}>{message}</li>;
+
+                  // For nested errors (like addressDetails), we might need to drill down
+                  if (typeof error === 'object') {
+                    const subErrors = Object.values(error).map((sub: any) => sub?.message).filter(Boolean);
+                    if (subErrors.length > 0) return subErrors.map((msg, i) => <li key={`${key}-${i}`}>{msg}</li>);
+                  }
+
+                  return null;
+                })}
+              </ul>
             </div>
           )}
           <Button
             type="submit"
-            disabled={isSubmitting}
+            disabled={isSubmitting || orderMutation.isPending}
             className="w-full h-12 sm:h-14 text-base sm:text-lg font-semibold shadow-lg hover:shadow-xl transition-all"
             size="lg"
           >
-            {isSubmitting ? (
+            {isSubmitting || orderMutation.isPending ? (
               <>
                 <Loader2 className="mr-2 h-6 w-6 sm:h-7 sm:w-7 animate-spin" strokeWidth={3} />
-                Placing Order...
+                {isSubmitting ? "Processing..." : "Placing Order..."}
               </>
             ) : (
               "Place Free Order Request"
