@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -36,9 +36,28 @@ export function UserAuth({ onVerified }: UserAuthProps) {
   const [otp, setOtp] = useState("");
   const [showTermsError, setShowTermsError] = useState(false);
   const [userData, setUserData] = useState<UserFormValues | null>(null);
+  const [timer, setTimer] = useState(60);
+  const [canResend, setCanResend] = useState(false);
   const toast = useToast();
   const { signup, verifyOtp, isLoading: isAuthLoading } = useAuthMutations();
   const userId = useUserStore((state) => state.userId);
+
+  // Timer countdown effect
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (otpSent && timer > 0) {
+      interval = setInterval(() => {
+        setTimer((prev) => {
+          if (prev <= 1) {
+            setCanResend(true);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [otpSent, timer]);
 
   const userForm = useForm<UserFormValues>({
     resolver: zodResolver(userSchema),
@@ -70,6 +89,8 @@ export function UserAuth({ onVerified }: UserAuthProps) {
           sendGAEvent({ event: 'auth_info_submitted' });
           setUserData(data);
           setOtpSent(true);
+          setTimer(60);
+          setCanResend(false);
           toast.info("OTP sent successfully!");
         } else {
           toast.error(res.message || "Signup failed");
@@ -77,6 +98,26 @@ export function UserAuth({ onVerified }: UserAuthProps) {
       },
       onError: (error: any) => {
         toast.error(error.message || "Failed to send OTP. Please try again.");
+      }
+    });
+  };
+
+  const handleResendOtp = async () => {
+    if (!userData) return;
+
+    signup.mutate(userData, {
+      onSuccess: (res) => {
+        if (res.success) {
+          setTimer(60);
+          setCanResend(false);
+          setOtp("");
+          toast.info("OTP resent successfully!");
+        } else {
+          toast.error(res.message || "Failed to resend OTP");
+        }
+      },
+      onError: (error: any) => {
+        toast.error(error.message || "Failed to resend OTP. Please try again.");
       }
     });
   };
@@ -236,7 +277,16 @@ export function UserAuth({ onVerified }: UserAuthProps) {
         <div className="animate-in fade-in slide-in-from-top-4 duration-300 border-t pt-6">
           <div className="space-y-4">
             <div className="space-y-2">
-              <h4 className="font-semibold text-foreground">Verify OTP</h4>
+              <div className="flex items-center justify-between">
+                <h4 className="font-semibold text-foreground">Verify OTP</h4>
+                {timer > 0 ? (
+                  <span className="text-sm text-muted-foreground">
+                    Expires in <span className="font-semibold text-primary">{timer}s</span>
+                  </span>
+                ) : (
+                  <span className="text-sm text-destructive font-medium">OTP Expired</span>
+                )}
+              </div>
               <p className="text-xs text-muted-foreground">
                 Enter the 6-digit code sent to +91 {userForm.getValues("phone")}
               </p>
@@ -252,6 +302,7 @@ export function UserAuth({ onVerified }: UserAuthProps) {
                     setOtp(numericVal);
                   }}
                   inputMode="numeric"
+                  disabled={timer === 0}
                 >
                   <InputOTPGroup>
                     <InputOTPSlot index={0} className="h-10 w-10 sm:h-12 sm:w-12" />
@@ -265,14 +316,26 @@ export function UserAuth({ onVerified }: UserAuthProps) {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-2">
-                <Button
-                  type="button"
-                  onClick={handleVerifyOtp}
-                  className="h-12 w-full sm:w-auto sm:min-w-[140px] font-semibold"
-                  disabled={isAuthLoading || otp.length !== 6}
-                >
-                  {isAuthLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : "Verify"}
-                </Button>
+                {canResend ? (
+                  <Button
+                    type="button"
+                    onClick={handleResendOtp}
+                    className="h-12 w-full sm:w-auto sm:min-w-[140px] font-semibold"
+                    disabled={isAuthLoading}
+                    variant="outline"
+                  >
+                    {isAuthLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : "Resend OTP"}
+                  </Button>
+                ) : (
+                  <Button
+                    type="button"
+                    onClick={handleVerifyOtp}
+                    className="h-12 w-full sm:w-auto sm:min-w-[140px] font-semibold"
+                    disabled={isAuthLoading || otp.length !== 6 || timer === 0}
+                  >
+                    {isAuthLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : "Verify"}
+                  </Button>
+                )}
                 <Button
                   variant="ghost"
                   size="sm"
@@ -280,6 +343,8 @@ export function UserAuth({ onVerified }: UserAuthProps) {
                   onClick={() => {
                     setOtpSent(false);
                     setOtp("");
+                    setTimer(60);
+                    setCanResend(false);
                   }}
                   className="h-12 text-muted-foreground"
                 >
