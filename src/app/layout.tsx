@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ProgressBar } from '@lexz451/next-nprogress';
 import { QueryProvider } from "@/providers/QueryProvider";
+import { GoogleAnalytics } from '@next/third-parties/google'
 
 import { Suspense } from "react";
 
@@ -43,6 +44,8 @@ export default function RootLayout({
         <QueryProvider>
           {children}
         </QueryProvider>
+              <GoogleAnalytics gaId="G-CZ9P8YQS3W" />
+
       </body>
     </html>
   );
