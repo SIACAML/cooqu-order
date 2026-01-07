@@ -5,14 +5,14 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { useAuthMutations } from "../../hooks/useAuthMutations";
 import { useUserStore } from "../../store/userStore";
+import { sendGAEvent } from "@next/third-parties/google";
 
 // Schema for User Details
 const userSchema = z.object({
@@ -25,27 +25,21 @@ const userSchema = z.object({
   } as any),
 });
 
-// Schema for OTP
-const otpSchema = z.object({
-  otp: z.string().length(6, "OTP must be 6 digits"),
-});
-
 type UserFormValues = z.infer<typeof userSchema>;
-type OtpFormValues = z.infer<typeof otpSchema>;
 
 interface UserAuthProps {
   onVerified: (userData: UserFormValues) => void;
 }
 
 export function UserAuth({ onVerified }: UserAuthProps) {
-  const [step, setStep] = useState<"details" | "otp">("details");
+  const [otpSent, setOtpSent] = useState(false);
+  const [otp, setOtp] = useState("");
+  const [showTermsError, setShowTermsError] = useState(false);
   const [userData, setUserData] = useState<UserFormValues | null>(null);
   const toast = useToast();
   const { signup, verifyOtp, isLoading: isAuthLoading } = useAuthMutations();
   const userId = useUserStore((state) => state.userId);
-  const isLoading = isAuthLoading;
 
-  // Form 1: User Details
   const userForm = useForm<UserFormValues>({
     resolver: zodResolver(userSchema),
     defaultValues: {
@@ -57,19 +51,26 @@ export function UserAuth({ onVerified }: UserAuthProps) {
     },
   });
 
-  // Form 2: OTP
-  const otpForm = useForm<OtpFormValues>({
-    resolver: zodResolver(otpSchema),
-    defaultValues: { otp: "" },
-  });
+  const handleSendOtp = async () => {
+    const isValid = await userForm.trigger();
+    if (!isValid) {
+      // Check specifically if terms are not accepted
+      if (!userForm.getValues("termsAccepted")) {
+        setShowTermsError(true);
+        toast.error("Please accept the Terms & Conditions to continue");
+        setTimeout(() => setShowTermsError(false), 820); // Duration of shake animation
+      }
+      return;
+    }
 
-  const onDetailsSubmit = async (data: UserFormValues) => {
+    const data = userForm.getValues();
     signup.mutate(data, {
       onSuccess: (res) => {
         if (res.success) {
+          sendGAEvent({ event: 'auth_info_submitted' });
           setUserData(data);
-          setStep("otp");
-          toast.info("A 6-digit code has been sent to your phone.");
+          setOtpSent(true);
+          toast.info("OTP sent successfully!");
         } else {
           toast.error(res.message || "Signup failed");
         }
@@ -80,10 +81,13 @@ export function UserAuth({ onVerified }: UserAuthProps) {
     });
   };
 
-  const onOtpSubmit = async (data: OtpFormValues) => {
-    if (!userId || !userData) return;
+  const handleVerifyOtp = async () => {
+    if (!userId || !userData || otp.length !== 6) {
+      toast.error("Please enter a valid 6-digit OTP");
+      return;
+    }
 
-    verifyOtp.mutate({ userId, otp: data.otp }, {
+    verifyOtp.mutate({ userId, otp }, {
       onSuccess: (res) => {
         if (res.success) {
           toast.success("Phone verified successfully!");
@@ -94,98 +98,102 @@ export function UserAuth({ onVerified }: UserAuthProps) {
       },
       onError: (error: any) => {
         toast.error(error.message || "Invalid OTP code. Please try again.");
-        otpForm.setError("otp", { message: "Invalid OTP. Try 1234" });
       }
     });
   };
 
-  if (step === "details") {
-    return (
-      <Card className="w-full max-w-md mx-auto border-none shadow-none sm:border sm:shadow-sm">
-        <CardHeader className="space-y-2 pb-2">
-          <CardTitle className="text-3xl font-extrabold text-center text-zinc-900 tracking-tight">
-            Let's Get Started
-          </CardTitle>
-          <CardDescription className="text-center text-zinc-500 text-base">
-            Enter your details to proceed with your unique food experience.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="p-4 sm:p-6">
-          <Form {...userForm}>
-            <form onSubmit={userForm.handleSubmit(onDetailsSubmit)} className="space-y-6">
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={userForm.control}
-                  name="firstName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>First Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="John" {...field} className="h-12" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={userForm.control}
-                  name="lastName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Last Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Doe" {...field} className="h-12" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <FormField
-                control={userForm.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email Address</FormLabel>
-                    <FormControl>
-                      <Input placeholder="john@example.com" type="email" {...field} className="h-12" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={userForm.control}
-                name="phone"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Phone Number</FormLabel>
-                    <FormControl>
-                      <div className="relative">
-                        <div className="absolute left-0 top-0 h-12 w-12 flex items-center justify-center border-r bg-muted rounded-l-md text-sm font-medium">
-                          +91
-                        </div>
-                        <Input
-                          placeholder="98XXXXXX10"
-                          type="text"
-                          {...field}
-                          className="h-12 pl-14"
-                          onChange={(e) => {
-                            const val = e.target.value.replace(/\D/g, '').slice(0, 10);
-                            field.onChange(val);
-                          }}
-                        />
+  return (
+    <div className="w-full space-y-6">
+      <div className="space-y-2">
+        <h3 className="text-lg font-semibold text-primary">Your Details</h3>
+        <p className="text-sm text-muted-foreground">
+          Enter your details to verify and place the order.
+        </p>
+      </div>
+
+      <Form {...userForm}>
+        <div className="space-y-6">
+          <div className="grid grid-cols-2 gap-4">
+            <FormField
+              control={userForm.control}
+              name="firstName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>First Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="John" {...field} className="h-12" disabled={otpSent} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={userForm.control}
+              name="lastName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Last Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Doe" {...field} className="h-12" disabled={otpSent} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <FormField
+            control={userForm.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email Address</FormLabel>
+                <FormControl>
+                  <Input placeholder="john@example.com" type="email" {...field} className="h-12" disabled={otpSent} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <div className="space-y-4">
+            <FormField
+              control={userForm.control}
+              name="phone"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Phone Number</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <div className="absolute left-0 top-0 h-12 w-12 flex items-center justify-center border-r bg-muted rounded-l-md text-sm font-medium z-10">
+                        +91
                       </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                      <Input
+                        placeholder="98XXXXXX10"
+                        type="text"
+                        {...field}
+                        className="h-12 pl-14"
+                        disabled={otpSent}
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/\D/g, '').slice(0, 10);
+                          field.onChange(val);
+                        }}
+                      />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            {!otpSent && (
               <FormField
                 control={userForm.control}
                 name="termsAccepted"
                 render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-xl border bg-muted/20 p-4 shadow-sm">
+                  <FormItem className={`flex flex-row items-start space-x-3 space-y-0 rounded-xl border p-4 shadow-sm transition-all ${showTermsError
+                    ? 'bg-destructive/10 border-destructive animate-shake'
+                    : 'bg-muted/20 border-border'
+                    }`}>
                     <FormControl>
                       <Checkbox
                         checked={field.value as boolean}
@@ -200,89 +208,88 @@ export function UserAuth({ onVerified }: UserAuthProps) {
                         {" "}and{" "}
                         <Link href="/privacy-policy" className="text-primary hover:underline transition-all">Privacy Policy</Link>
                       </p>
-                      <p className="text-xs text-zinc-500 leading-normal">
-                        By checking this box, you allow CooQu to create an account on CooQu mobile app on your behalf and confirm that you have read and accepted our legal terms.
-                      </p>
                     </div>
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full h-14 text-lg font-bold shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all rounded-xl" disabled={isLoading}>
-                {isLoading ? (
-                  <>
-                    <Loader2 className="mr-2 h-7 w-7 animate-spin" strokeWidth={3} />
-                    Sending OTP...
-                  </>
+            )}
+            {!otpSent && (
+              <Button
+                type="button"
+                onClick={handleSendOtp}
+                size="lg"
+                className="h-12 w-full font-semibold"
+                disabled={isAuthLoading}
+              >
+                {isAuthLoading ? (
+                  <Loader2 className="h-5 w-5 animate-spin" />
                 ) : (
-                  "Verify & Continue"
+                  "Send OTP"
                 )}
               </Button>
-            </form>
-          </Form>
-        </CardContent>
-      </Card>
-    );
-  }
+            )}
+          </div>
+        </div>
+      </Form>
 
-  return (
-    <Card className="w-full max-w-md mx-auto border-none shadow-none sm:border sm:shadow-sm">
-      <CardHeader>
-        <CardTitle className="text-2xl font-bold text-center text-primary">Verify OTP</CardTitle>
-        <CardDescription className="text-center">
-          We sent a code to <span className="font-semibold text-foreground">{userData?.phone}</span>
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="p-4 sm:p-6">
-        <Form {...otpForm}>
-          <form onSubmit={otpForm.handleSubmit(onOtpSubmit)} className="space-y-8 flex flex-col items-center">
-            <Controller
-              control={otpForm.control}
-              name="otp"
-              defaultValue=""
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <InputOTP
-                      maxLength={6}
-                      value={field.value}
-                      onChange={(val) => {
-                        const numericVal = val.replace(/\D/g, "");
-                        field.onChange(numericVal);
-                      }}
-                      inputMode="numeric"
-                    >
-                      <InputOTPGroup>
-                        <InputOTPSlot index={0} className="h-12 w-12 sm:h-14 sm:w-14 text-lg" />
-                        <InputOTPSlot index={1} className="h-12 w-12 sm:h-14 sm:w-14 text-lg" />
-                        <InputOTPSlot index={2} className="h-12 w-12 sm:h-14 sm:w-14 text-lg" />
-                        <InputOTPSlot index={3} className="h-12 w-12 sm:h-14 sm:w-14 text-lg" />
-                        <InputOTPSlot index={4} className="h-12 w-12 sm:h-14 sm:w-14 text-lg" />
-                        <InputOTPSlot index={5} className="h-12 w-12 sm:h-14 sm:w-14 text-lg" />
-                      </InputOTPGroup>
-                    </InputOTP>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <div className="w-full space-y-4">
-              <Button type="submit" className="w-full h-14 text-lg font-bold shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all rounded-xl" disabled={isLoading}>
-                {isLoading ? (
-                  <>
-                    <Loader2 className="mr-2 h-7 w-7 animate-spin" strokeWidth={3} />
-                    Verifying OTP...
-                  </>
-                ) : (
-                  "Confirm OTP"
-                )}
-              </Button>
-              <Button variant="ghost" type="button" className="w-full h-12 text-zinc-500 hover:text-primary transition-colors" onClick={() => setStep("details")}>
-                Change Phone Number
-              </Button>
+      {otpSent && (
+        <div className="animate-in fade-in slide-in-from-top-4 duration-300 border-t pt-6">
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <h4 className="font-semibold text-foreground">Verify OTP</h4>
+              <p className="text-xs text-muted-foreground">
+                Enter the 6-digit code sent to +91 {userForm.getValues("phone")}
+              </p>
             </div>
-          </form>
-        </Form>
-      </CardContent>
-    </Card>
+
+            <div className="flex flex-col gap-4">
+              <div className="flex justify-center sm:justify-start">
+                <InputOTP
+                  maxLength={6}
+                  value={otp}
+                  onChange={(val) => {
+                    const numericVal = val.replace(/\D/g, "");
+                    setOtp(numericVal);
+                  }}
+                  inputMode="numeric"
+                >
+                  <InputOTPGroup>
+                    <InputOTPSlot index={0} className="h-10 w-10 sm:h-12 sm:w-12" />
+                    <InputOTPSlot index={1} className="h-10 w-10 sm:h-12 sm:w-12" />
+                    <InputOTPSlot index={2} className="h-10 w-10 sm:h-12 sm:w-12" />
+                    <InputOTPSlot index={3} className="h-10 w-10 sm:h-12 sm:w-12" />
+                    <InputOTPSlot index={4} className="h-10 w-10 sm:h-12 sm:w-12" />
+                    <InputOTPSlot index={5} className="h-10 w-10 sm:h-12 sm:w-12" />
+                  </InputOTPGroup>
+                </InputOTP>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-2">
+                <Button
+                  type="button"
+                  onClick={handleVerifyOtp}
+                  className="h-12 w-full sm:w-auto sm:min-w-[140px] font-semibold"
+                  disabled={isAuthLoading || otp.length !== 6}
+                >
+                  {isAuthLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : "Verify"}
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  type="button"
+                  onClick={() => {
+                    setOtpSent(false);
+                    setOtp("");
+                  }}
+                  className="h-12 text-muted-foreground"
+                >
+                  Change Number
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }

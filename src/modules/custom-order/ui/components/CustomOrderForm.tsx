@@ -17,31 +17,23 @@ import { useOrderMutation } from "../../hooks/useOrderMutation";
 import { format } from "date-fns";
 
 import { Loader2, PartyPopper } from "lucide-react";
+import { sendGAEvent } from "@next/third-parties/google";
 
 export function CustomOrderForm() {
   const { user, isVerified, accessToken, setUser, setVerified, setAddress, logout } = useUserStore();
   const toast = useToast();
-  const [step, setStep] = useState<1 | 2>(1);
   const [isHydrated, setIsVerifiedHydrated] = useState(false);
   const orderMutation = useOrderMutation();
-  const [pendingValues, setPendingValues] = useState<FormValues | null>(null);
 
   const handleLogout = () => {
     logout();
-    setStep(1);
     toast.info("Logged out successfully");
   };
 
   useEffect(() => {
     setIsVerifiedHydrated(true);
+    sendGAEvent({ event: 'view_custom_order_page' });
   }, []);
-
-  // Effect to handle submission after verification
-  useEffect(() => {
-    if (isVerified && accessToken && pendingValues && !orderMutation.isPending && !orderMutation.isSuccess && !orderMutation.isError) {
-      submitOrder(pendingValues);
-    }
-  }, [isVerified, accessToken, pendingValues, orderMutation.isPending, orderMutation.isSuccess, orderMutation.isError]);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -122,22 +114,26 @@ export function CustomOrderForm() {
 
       await orderMutation.mutateAsync(formData);
 
+      sendGAEvent({ event: 'order_placed_success' });
+
       toast.success("Hooray! Your order request has been sent successfully.");
-      setPendingValues(null); // Clear on success
       setSuccess(true);
-      setStep(1); // Go back to step 1 for success view
     } catch (error: any) {
       console.error("Submission Error:", error);
       toast.error(error.response?.data?.message || "Failed to submit request. Please try again.");
-      setStep(1); // Return to form on error so user can retry or fix data
     }
   };
 
   const onSubmit = async (values: FormValues) => {
+    sendGAEvent({ event: 'custom_order_form_submitted' });
+
     if (!isVerified || !accessToken) {
-      setPendingValues(values);
-      setStep(2);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      toast.error("Please verify your details below to place the order.");
+      // Scroll to auth section smoothly
+      const authSection = document.getElementById('auth-section');
+      if (authSection) {
+        authSection.scrollIntoView({ behavior: 'smooth' });
+      }
       return;
     }
 
@@ -147,11 +143,6 @@ export function CustomOrderForm() {
   const handleAuthVerified = (userData: any) => {
     setUser(userData);
     setVerified(true);
-    // The useEffect will handle the submission if pendingValues exists
-    if (!pendingValues) {
-      setStep(1);
-    }
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   if (!isHydrated) {
@@ -248,25 +239,6 @@ export function CustomOrderForm() {
     )
   }
 
-  if (step === 2) {
-    return (
-      <div className="space-y-8 max-w-4xl mx-auto">
-        <div className="space-y-2 text-center sm:text-left">
-          <h1 className="text-3xl font-bold tracking-tight text-primary">Verify Your Details</h1>
-          <p className="text-muted-foreground">Almost there! We just need to verify your details to place the order.</p>
-        </div>
-        {orderMutation.isPending ? (
-          <div className="flex flex-col items-center justify-center py-12 space-y-4">
-            <Loader2 className="h-12 w-12 animate-spin text-primary" strokeWidth={3} />
-            <p className="text-lg font-medium text-primary">Placing your order request...</p>
-          </div>
-        ) : (
-          <UserAuth onVerified={handleAuthVerified} />
-        )}
-      </div>
-    );
-  }
-
   return (
     <Form {...form}>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 max-w-4xl mx-auto pb-24 px-4 sm:px-0">
@@ -274,27 +246,10 @@ export function CustomOrderForm() {
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div className="space-y-2">
             <h1 className="text-3xl font-bold tracking-tight text-primary">Custom Food Order</h1>
-            {isVerified && user ? (
-              <p className="text-muted-foreground">
-                Ordering as <span className="font-semibold text-foreground">{user?.firstName} {user?.lastName}</span> ({user?.phone})
-              </p>
-            ) : (
-              <p className="text-muted-foreground">
-                Describe your unique food craving, and we'll find the perfect cook for you!
-              </p>
-            )}
+            <p className="text-muted-foreground">
+              Describe your unique food craving, and we'll find the perfect cook for you!
+            </p>
           </div>
-          {isVerified && (
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={handleLogout}
-              className="w-fit text-xs h-8"
-            >
-              Change User
-            </Button>
-          )}
         </div>
 
         {/* Section 1: Required Details */}
@@ -314,6 +269,32 @@ export function CustomOrderForm() {
 
         {/* Section 2: Optional Details */}
         <OptionalDetails />
+
+        {/* Auth Section */}
+        <div id="auth-section" className="pt-6 border-t">
+          {!isVerified ? (
+            <UserAuth onVerified={handleAuthVerified} />
+          ) : (
+            <Card className="bg-primary/5 border-primary/20">
+              <CardContent className="flex items-center justify-between p-6">
+                <div className="space-y-1">
+                  <h4 className="font-semibold text-primary">Ordering as</h4>
+                  <p className="text-lg font-medium">{user?.firstName} {user?.lastName}</p>
+                  <p className="text-sm text-muted-foreground">{user?.phone}</p>
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleLogout}
+                  className="border-primary text-primary hover:bg-primary/10"
+                >
+                  Change User
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+        </div>
 
 
         <div className="pt-4 sticky bottom-0 z-20 mx-auto w-full max-w-4xl bg-background/80 backdrop-blur-sm sm:bg-transparent pb-4 sm:static sm:z-auto space-y-2 border-t sm:border-none">
@@ -340,7 +321,7 @@ export function CustomOrderForm() {
           )}
           <Button
             type="submit"
-            disabled={isSubmitting || orderMutation.isPending}
+            disabled={isSubmitting || orderMutation.isPending || !isVerified}
             className="w-full h-12 sm:h-14 text-base sm:text-lg font-semibold shadow-lg hover:shadow-xl transition-all"
             size="lg"
           >
@@ -350,7 +331,7 @@ export function CustomOrderForm() {
                 {isSubmitting ? "Processing..." : "Placing Order..."}
               </>
             ) : (
-              "Place Free Order Request"
+              !isVerified ? "Verify Details to Place Order" : "Place Free Order Request"
             )}
           </Button>
           <p className="text-[0.65rem] sm:text-xs text-center text-muted-foreground">
