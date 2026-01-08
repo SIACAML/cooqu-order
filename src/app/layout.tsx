@@ -20,6 +20,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "CooQu | Authentic Homemade Food Experiences",
   description: "CooQu connects you with talented home cooks for custom meals, catering, and theme-based dining. Discover the joy of home-cooked goodness.",
+  verification: {
+    google: "X11AKmhpY3QVfacgsiBSuMMVWOGoKCbJUm1Rf_dKDSM",
+  },
 };
 
 export default function RootLayout({
@@ -44,7 +47,7 @@ export default function RootLayout({
         <QueryProvider>
           {children}
         </QueryProvider>
-              <GoogleAnalytics gaId="G-CZ9P8YQS3W" />
+        <GoogleAnalytics gaId="G-CZ9P8YQS3W" />
 
       </body>
     </html>
