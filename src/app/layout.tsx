@@ -3,7 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ProgressBar } from '@lexz451/next-nprogress';
 import { QueryProvider } from "@/providers/QueryProvider";
-import { GoogleAnalytics } from '@next/third-parties/google'
+import { GoogleAnalytics, GoogleTagManager } from '@next/third-parties/google'
 
 import { Suspense } from "react";
 
@@ -32,6 +32,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <GoogleTagManager gtmId="GTM-5FHRRS35" />
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
