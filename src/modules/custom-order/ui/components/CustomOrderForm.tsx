@@ -44,8 +44,6 @@ export function CustomOrderForm() {
       quantity: 1,
       unit: "plate",
       guestCount: 1,
-      date: new Date(new Date().setDate(new Date().getDate() + 1)), // Default to tomorrow's date
-      time: "12:00", // Default time
       cuisine: "",
       itemName: "",
       description: "",

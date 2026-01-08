@@ -47,7 +47,7 @@ export const useUserStore = create<UserStore>()(
       setAccessToken: (token) => set({ accessToken: token }),
       setVerified: (verified) => set({ isVerified: verified }),
       setAddress: (address) => set({ address }),
-      logout: () => set({ user: null, userId: null, accessToken: null, isVerified: false, address: null }),
+      logout: () => set({ user: null, userId: null, accessToken: null, isVerified: false }),
     }),
     {
       name: 'custom-order-user-storage',

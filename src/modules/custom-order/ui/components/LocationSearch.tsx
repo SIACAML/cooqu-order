@@ -62,7 +62,7 @@ const loadGoogleMapsScript = (apiKey: string): Promise<void> => {
 };
 
 export function LocationSearch() {
-  const { setValue, watch } = useFormContext();
+  const { setValue, watch, trigger } = useFormContext();
   const { address, setAddress } = useUserStore();
   const [open, setOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -181,6 +181,11 @@ export function LocationSearch() {
       setValue("detailedAddress.landmark", tempAddress.landmark);
       setIsEditing(false);
       setTempAddress(null);
+
+      // Trigger validation to clear errors
+      setTimeout(() => {
+        trigger(["location", "addressDetails", "detailedAddress"]);
+      }, 0);
     }
   };
 
