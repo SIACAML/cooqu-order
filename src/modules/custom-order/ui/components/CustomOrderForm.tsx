@@ -322,6 +322,7 @@ export function CustomOrderForm() {
             disabled={isSubmitting || orderMutation.isPending || !isVerified}
             className="w-full h-12 sm:h-14 text-base sm:text-lg font-semibold shadow-lg hover:shadow-xl transition-all"
             size="lg"
+            id="submit-button"
           >
             {isSubmitting || orderMutation.isPending ? (
               <>
